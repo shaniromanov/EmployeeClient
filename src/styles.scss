@@ -1,1 +1,73 @@
+// Custom Theming for Angular Material
+// For more information: https://material.angular.io/guide/theming
+@import "~@angular/material/theming";
+// Plus imports for other components in your app.
+
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+// Be sure that you only ever include this mixin once!
+@include mat-core();
+
+// Define the palettes for your theme using the Material Design palettes available in palette.scss
+// (imported above). For each palette, you can optionally specify a default, lighter, and darker
+// hue. Available color palettes: https://material.io/design/color/
+$client-primary: mat-palette($mat-purple);
+$client-accent: mat-palette($mat-purple, A200, A100, A600);
+
+// The warn palette is optional (defaults to red).
+$client-warn: mat-palette($mat-red);
+
+// Create the theme object (a Sass map containing all of the palettes).
+$client-theme: mat-light-theme($client-primary, $client-accent, $client-warn);
+
+// Include theme styles for core and each component used in your app.
+// Alternatively, you can import and @include the theme mixins for each component
+// that you are using.
+@include angular-material-theme($client-theme);
+
+@font-face {
+  font-family: "Heebo";
+  src: url(/assets/fonts/Heebo/Heebo-Regular.ttf) format("truetype");
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "Bellefair";
+  src: url(/assets/fonts/Bellefair/Bellefair-Regular.ttf) format("truetype");
+  font-weight: 300;
+}
+
+$custom-typography: mat-typography-config(
+  $font-family: "Heebo",
+);
+@include angular-material-typography($custom-typography);
 /* You can add global styles to this file, and also import other style files */
+
+@import "../node_modules/bootstrap/scss/bootstrap";
+
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+}
+
+.page-header {
+  margin-bottom: 50px;
+}
+
+button:focus,
+button:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.mat-card {
+  box-shadow: 5px -3px 5px -1px rgba(0, 0, 0, 0.1),
+    0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12) !important;
+  padding: 40px !important;
+}
+.mat-raised-button {
+  min-width: 150px !important;
+}

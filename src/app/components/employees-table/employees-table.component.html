@@ -1,0 +1,45 @@
+<div class="mat-elevation-z8 mat-table-wrapper">
+  <table mat-table class="full-width-table" matSort aria-label="Elements">
+    <!-- Name Column -->
+    <ng-container matColumnDef="fullName">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>שם</th>
+      <td mat-cell *matCellDef="let row">
+        {{ row.firstName + " " + row.lastName }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="tz">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>ת"ז</th>
+      <td mat-cell *matCellDef="let row">{{ row.employeeId }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="email">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>דוא"ל</th>
+      <td mat-cell *matCellDef="let row">{{ row.email }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="phone">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>טלפון</th>
+      <td mat-cell *matCellDef="let row">{{ row.phone }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="image">
+      <th mat-header-cell *matHeaderCellDef>תמונה</th>
+      <td mat-cell *matCellDef="let row">
+        <img [src]="row.imageUrl" width="25" height="25" alt="" />
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+
+  <mat-paginator
+    #paginator
+    [length]="dataSource?.data.length"
+    [pageIndex]="0"
+    [pageSize]="50"
+    [pageSizeOptions]="[25, 50, 100, 250]"
+  >
+  </mat-paginator>
+</div>

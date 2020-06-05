@@ -1,0 +1,43 @@
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav
+    #drawer
+    class="sidenav"
+    fixedInViewport
+    [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
+    [mode]="(isHandset$ | async) ? 'over' : 'side'"
+    [opened]="(isHandset$ | async) === false"
+  >
+    <mat-nav-list>
+      <mat-toolbar></mat-toolbar>
+
+      <button
+        *ngFor="let page of pages"
+        routerLinkActive="active"
+        class="btn-nav"
+        mat-stroked-button
+        color="primary"
+        style="width: 100%;"
+        [routerLink]="page.route"
+      >
+        {{ page.title }}
+      </button>
+    </mat-nav-list>
+  </mat-sidenav>
+  <mat-sidenav-content class="sid-content">
+    <mat-toolbar class="page-header" color="primary">
+      <button
+        class="btn-toggle-navi"
+        type="button"
+        aria-label="Toggle sidenav"
+        mat-icon-button
+        (click)="drawer.toggle()"
+      >
+        <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+      </button>
+      <span>{{ selectedPageTitle }}</span>
+    </mat-toolbar>
+    <div class="content-wrapper">
+      <ng-content></ng-content>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

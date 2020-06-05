@@ -1,0 +1,48 @@
+.sidenav-container {
+  height: 100%;
+}
+
+.sidenav {
+  width: 170px;
+  background: #e6dce6;
+}
+
+.sidenav .mat-toolbar {
+  background: inherit;
+}
+
+.mat-toolbar.mat-primary {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.sid-content {
+  background-image: url(../../../assets/back-purple.png);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100vh;
+}
+
+.content-wrapper {
+  margin: 20px;
+}
+
+.btn-nav {
+  // color: white;
+  border-radius: 0 !important;
+  &.active {
+    background: white;
+    // background: #9c27b0;
+    // color: black;
+    // background: #9c27b0;
+    border-radius: 0 !important;
+    // color: white;
+  }
+}
+
+.btn-toggle-nav {
+  position: fixed;
+  top: 13px;
+}

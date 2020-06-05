@@ -1,0 +1,89 @@
+<form
+  [formGroup]="newEmpForm"
+  #myForm="ngForm"
+  novalidate
+  (ngSubmit)="onSubmit()"
+>
+  <mat-card class="small-card">
+    <mat-card-content>
+      <div class="d-flex justify-content-between">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>שם משפחה</mat-label>
+          <input matInput formControlName="lastName" />
+          <mat-error
+            *ngIf="newEmpForm.controls['lastName'].hasError('required')"
+          >
+            חובה להכניס שם משפחה
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>שם פרטי</mat-label>
+          <input matInput formControlName="firstName" />
+          <mat-error
+            *ngIf="newEmpForm.controls['firstName'].hasError('required')"
+          >
+            חובה להכניס שם פרטי
+          </mat-error>
+        </mat-form-field>
+      </div>
+      <div class="d-flex justify-content-between">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>תעודת זהות</mat-label>
+          <input matInput formControlName="employeeId" />
+          <mat-error
+            *ngIf="newEmpForm.controls['employeeId'].hasError('required')"
+          >
+            חובה להכניס תעודת זהות
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>טלפון</mat-label>
+          <input matInput formControlName="phone" />
+          <mat-error *ngIf="newEmpForm.controls['phone'].hasError('required')">
+            חובה להכניס טלפון
+          </mat-error>
+        </mat-form-field>
+      </div>
+      <div class="d-flex justify-content-between">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>דואר אלקטרוני</mat-label>
+          <input matInput type="email" email formControlName="email" />
+          <mat-error *ngIf="newEmpForm.controls['email'].hasError('required')">
+            חובה להכניס דואר אלקטרוני
+          </mat-error>
+        </mat-form-field>
+        <input
+          type="file"
+          hidden
+          multiple="false"
+          #imageUpload
+          (change)="uploadImage($event)"
+        />
+        <div>
+          <button
+            class="full-width btn-upload"
+            mat-stroked-button
+            fill="outlined"
+            color="primary"
+            (click)="imageUpload.click()"
+            type="button"
+          >
+            העלאת תמונה
+          </button>
+          <mat-error
+            style="font-size: 10.5px; margin-top: 2px;"
+            *ngIf="
+              myForm.submitted &&
+              newEmpForm.controls['imageUrl'].hasError('required')
+            "
+          >
+            חובה להכניס תמונה
+          </mat-error>
+        </div>
+      </div>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button color="primary" type="submit">שמור</button>
+    </mat-card-actions>
+  </mat-card>
+</form>
