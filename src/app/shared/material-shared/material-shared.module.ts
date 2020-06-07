@@ -14,7 +14,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
-
+import { MatDialogModule } from '@angular/material/dialog';
 
 @NgModule({
   declarations: [],
@@ -34,6 +34,7 @@ import { MatRadioModule } from '@angular/material/radio';
     MatInputModule,
     MatSelectModule,
     MatRadioModule,
+    MatDialogModule,
   ],
   exports: [
     MatTableModule,
@@ -50,6 +51,7 @@ import { MatRadioModule } from '@angular/material/radio';
     MatInputModule,
     MatSelectModule,
     MatRadioModule,
-  ]
+    MatDialogModule,
+  ],
 })
-export class MaterialSharedModule { }
+export class MaterialSharedModule {}

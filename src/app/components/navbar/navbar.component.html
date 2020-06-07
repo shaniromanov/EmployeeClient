@@ -2,13 +2,14 @@
   <mat-sidenav
     #drawer
     class="sidenav"
+    color="accent"
     fixedInViewport
     [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
     [mode]="(isHandset$ | async) ? 'over' : 'side'"
     [opened]="(isHandset$ | async) === false"
   >
     <mat-nav-list>
-      <mat-toolbar>תפריט</mat-toolbar>
+      <mat-toolbar class="toolbar-top"></mat-toolbar>
       <div class="btn-nav-wrapper">
         <button
           *ngFor="let page of pages"
@@ -19,7 +20,7 @@
           style="width: 100%;"
           [routerLink]="page.route"
         >
-          {{ page.title }}
+          <mat-icon>{{ page.icon }}</mat-icon> {{ page.title }}
         </button>
       </div>
     </mat-nav-list>

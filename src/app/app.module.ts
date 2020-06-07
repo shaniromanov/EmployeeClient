@@ -5,7 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LayoutModule } from '@angular/cdk/layout';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { EmployeesTableComponent } from './components/employees-table/employees-table.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { MaterialSharedModule } from './shared/material-shared/material-shared.module';
@@ -18,6 +18,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { getHebrewPaginatorIntl } from './shared/hebrew-paginator-intl';
+import { MaterialDialogComponent } from './components/material-dialog/material-dialog.component';
 
 @NgModule({
   declarations: [
@@ -25,6 +26,7 @@ import { getHebrewPaginatorIntl } from './shared/hebrew-paginator-intl';
     EmployeesTableComponent,
     NavbarComponent,
     CreateEmployeeComponent,
+    MaterialDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -39,6 +41,7 @@ import { getHebrewPaginatorIntl } from './shared/hebrew-paginator-intl';
     MatSidenavModule,
     MatIconModule,
     MatListModule,
+    FormsModule,
   ],
   providers: [
     { provide: MatPaginatorIntl, useValue: getHebrewPaginatorIntl() },

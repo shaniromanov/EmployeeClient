@@ -37,6 +37,11 @@
           >
             חובה להכניס תעודת זהות
           </mat-error>
+          <mat-error
+            *ngIf="newEmpForm.controls['employeeId'].hasError('pattern')"
+          >
+            תעודת זהות לא תקינה
+          </mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
@@ -45,21 +50,34 @@
           <mat-error *ngIf="newEmpForm.controls['phone'].hasError('required')">
             חובה להכניס טלפון
           </mat-error>
+          <mat-error
+            *ngIf="
+              newEmpForm.controls['phone'].hasError('pattern') ||
+              newEmpForm.controls['phone'].hasError('maxlength') ||
+              newEmpForm.controls['phone'].hasError('minlength')
+            "
+          >
+            טלפון לא תקין
+          </mat-error>
         </mat-form-field>
       </div>
       <br />
       <div class="d-flex justify-content-between row-wrapper">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>דואר אלקטרוני</mat-label>
-          <input matInput type="email" email formControlName="email" />
+          <input matInput type="email" formControlName="email" />
           <mat-error *ngIf="newEmpForm.controls['email'].hasError('required')">
             חובה להכניס דואר אלקטרוני
+          </mat-error>
+          <mat-error *ngIf="newEmpForm.controls['email'].hasError('email')">
+            דואר אלקטרוני לא תקין
           </mat-error>
         </mat-form-field>
         <input
           type="file"
           hidden
           multiple="false"
+          accept="image/*"
           #imageUpload
           (change)="uploadImage($event)"
         />
@@ -72,7 +90,8 @@
             (click)="imageUpload.click()"
             type="button"
           >
-            העלאת תמונה
+            {{ fileUploadedName ? fileUploadedName : "העלאת תמונה" }}
+            <mat-icon>add_a_photo</mat-icon>
           </button>
           <mat-error
             style="font-size: 10.5px; margin-top: 2px;"
@@ -87,8 +106,16 @@
       </div>
     </mat-card-content>
     <mat-card-actions>
-      <div class="d-flex justify-content-center">
-        <button mat-raised-button color="primary" type="submit">שמור</button>
+      <div class="d-flex justify-content-end">
+        <button mat-raised-button color="primary" type="submit">שמירה</button>
+        <button
+          mat-raised-button
+          color="accent"
+          (click)="resetForm()"
+          type="button"
+        >
+          ניקוי
+        </button>
       </div>
     </mat-card-actions>
   </mat-card>

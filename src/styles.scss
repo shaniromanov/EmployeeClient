@@ -12,7 +12,7 @@
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue. Available color palettes: https://material.io/design/color/
 $client-primary: mat-palette($mat-purple);
-$client-accent: mat-palette($mat-purple, A200, A100, A600);
+$client-accent: mat-palette($mat-grey, A200, A100, A600);
 
 // The warn palette is optional (defaults to red).
 $client-warn: mat-palette($mat-red);
@@ -67,8 +67,34 @@ button:active {
   box-shadow: 5px -3px 5px -1px rgba(0, 0, 0, 0.1),
     0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12) !important;
   padding: 40px !important;
+  background: #ffffffe6 !important;
+}
+
+.mat-paginator,
+.mat-table {
+  background: #ffffffe6 !important;
+  tbody {
+    background: #ffffff00;
+    tr.mat-row {
+      background: #ffffff00 !important;
+    }
+  }
 }
 .mat-raised-button {
-  min-width: 150px !important;
+  min-width: 100px !important;
   font-size: 17px;
+}
+
+.btn-upload {
+  .mat-button-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+@media only screen and (min-width: 960px) {
+  .cdk-overlay-pane {
+    margin-right: 170px !important;
+  }
 }

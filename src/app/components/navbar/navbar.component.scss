@@ -4,11 +4,15 @@
 
 .sidenav {
   width: 170px;
-  background: #e6dce6;
+  // background: #e6dce6;
 }
 
 .sidenav .mat-toolbar {
   background: inherit;
+}
+
+.mat-icon {
+  margin-left: 10px !important;
 }
 
 .mat-toolbar.mat-primary {
@@ -21,11 +25,15 @@
 }
 
 .sid-content {
-  background-image: url(../../../assets/back-purple.png);
+  background-image: url(../../../assets/background-purlple-final.png);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   height: 100vh;
+}
+
+.toolbar-top {
+  height: 51px !important;
 }
 
 .content-wrapper {
@@ -38,7 +46,6 @@
 }
 
 .btn-nav {
-  // color: white;
   border-radius: 0 !important;
   text-align: right;
   font-weight: bold;
@@ -46,7 +53,7 @@
   font-size: 16px;
   border: 0.1px solid white !important;
   &.active {
-    background: white;
+    background: rgba(173, 46, 173, 0.205);
     border-radius: 0 !important;
   }
 }

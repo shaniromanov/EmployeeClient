@@ -12,10 +12,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 export class NavbarComponent implements OnInit {
   selectedPageTitle: string;
   pages = [
-    { route: '/create-emp', title: 'הוספת עובד/ת' },
-    { route: '/emp-list', title: 'רשימת עובדים' },
-    { route: '/emp-search', title: 'חיפוש' },
-    { route: '/emp-report', title: 'דיווח נוכחות' },
+    { route: '/create-emp', title: 'הוספת עובד/ת', icon: 'person_add' },
+    { route: '/emp-list', title: 'רשימת עובדים', icon: 'people' },
+    { route: '/emp-search', title: 'חיפוש', icon: 'search' },
+    { route: '/emp-report', title: 'דיווח נוכחות', icon: 'calendar_today' },
   ];
 
   isHandset$: Observable<boolean> = this.breakpointObserver
