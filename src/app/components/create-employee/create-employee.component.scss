@@ -1,9 +1,13 @@
 .small-card {
-  max-width: 50%;
+  max-width: max-content;
+  min-width: max-content;
   margin: auto;
 }
 .btn-upload {
   width: 201px;
   height: 51px;
   margin-top: 4px;
+}
+.row-wrapper {
+  width: 450px;
 }

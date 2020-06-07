@@ -8,19 +8,20 @@
     [opened]="(isHandset$ | async) === false"
   >
     <mat-nav-list>
-      <mat-toolbar></mat-toolbar>
-
-      <button
-        *ngFor="let page of pages"
-        routerLinkActive="active"
-        class="btn-nav"
-        mat-stroked-button
-        color="primary"
-        style="width: 100%;"
-        [routerLink]="page.route"
-      >
-        {{ page.title }}
-      </button>
+      <mat-toolbar>תפריט</mat-toolbar>
+      <div class="btn-nav-wrapper">
+        <button
+          *ngFor="let page of pages"
+          routerLinkActive="active"
+          class="btn-nav"
+          mat-stroked-button
+          color="primary"
+          style="width: 100%;"
+          [routerLink]="page.route"
+        >
+          {{ page.title }}
+        </button>
+      </div>
     </mat-nav-list>
   </mat-sidenav>
   <mat-sidenav-content class="sid-content">

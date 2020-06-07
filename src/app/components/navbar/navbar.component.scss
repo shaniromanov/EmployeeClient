@@ -15,6 +15,9 @@
   position: sticky;
   top: 0;
   z-index: 1;
+  background: #6f136f7a;
+  color: white;
+  height: 60px;
 }
 
 .sid-content {
@@ -29,16 +32,22 @@
   margin: 20px;
 }
 
+.btn-nav-wrapper {
+  border-top: 0.1px solid white;
+  border-bottom: 0.1px solid white;
+}
+
 .btn-nav {
   // color: white;
   border-radius: 0 !important;
+  text-align: right;
+  font-weight: bold;
+  padding: 5px;
+  font-size: 16px;
+  border: 0.1px solid white !important;
   &.active {
     background: white;
-    // background: #9c27b0;
-    // color: black;
-    // background: #9c27b0;
     border-radius: 0 !important;
-    // color: white;
   }
 }
 
