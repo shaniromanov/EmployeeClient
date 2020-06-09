@@ -1,0 +1,37 @@
+<h2 class="text-center" mat-dialog-title>הוספת סוג דיווח</h2>
+<div mat-dialog-content>
+  <form>
+    <div *ngFor="let type of newReportTypeList; let i = index">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>סוג דיווח</mat-label>
+        <input
+          matInput
+          name="type-{{ i }}"
+          [(ngModel)]="newReportTypeList[i]"
+        />
+      </mat-form-field>
+    </div>
+    <button
+      mat-stroked-button
+      (click)="addNewType()"
+      color="primary"
+      type="button"
+    >
+      <mat-icon>add_box</mat-icon>
+    </button>
+  </form>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">
+    ביטול
+  </button>
+  <button
+    mat-button
+    color="primary"
+    (click)="save()"
+    [mat-dialog-close]="'ok'"
+    cdkFocusInitial
+  >
+    אישור
+  </button>
+</div>

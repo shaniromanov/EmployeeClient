@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, LOCALE_ID } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -19,6 +19,11 @@ import { MatListModule } from '@angular/material/list';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { getHebrewPaginatorIntl } from './shared/hebrew-paginator-intl';
 import { MaterialDialogComponent } from './components/material-dialog/material-dialog.component';
+import { HoursReportEditComponent } from './components/hours-report-edit/hours-report-edit.component';
+import { MatDatepickerIntl } from '@angular/material/datepicker';
+import { DateAdapter } from '@angular/material/core';
+import { MomentUtcDateAdapter } from './shared/moment-utc-date-adapter ';
+import { AddReportTypeComponent } from './components/add-report-type/add-report-type.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +32,8 @@ import { MaterialDialogComponent } from './components/material-dialog/material-d
     NavbarComponent,
     CreateEmployeeComponent,
     MaterialDialogComponent,
+    HoursReportEditComponent,
+    AddReportTypeComponent,
   ],
   imports: [
     BrowserModule,
@@ -44,8 +51,12 @@ import { MaterialDialogComponent } from './components/material-dialog/material-d
     FormsModule,
   ],
   providers: [
+    { provide: LOCALE_ID, useValue: 'he' },
     { provide: MatPaginatorIntl, useValue: getHebrewPaginatorIntl() },
+    { provide: MatDatepickerIntl, useClass: MatDatepickerIntl },
+    { provide: DateAdapter, useClass: MomentUtcDateAdapter },
   ],
+  entryComponents: [AddReportTypeComponent],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

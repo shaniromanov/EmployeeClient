@@ -15,7 +15,7 @@ export class NavbarComponent implements OnInit {
     { route: '/create-emp', title: 'הוספת עובד/ת', icon: 'person_add' },
     { route: '/emp-list', title: 'רשימת עובדים', icon: 'people' },
     { route: '/emp-search', title: 'חיפוש', icon: 'search' },
-    { route: '/emp-report', title: 'דיווח נוכחות', icon: 'calendar_today' },
+    { route: '/report-edit', title: 'דיווח נוכחות', icon: 'calendar_today' },
   ];
 
   isHandset$: Observable<boolean> = this.breakpointObserver
@@ -32,7 +32,7 @@ export class NavbarComponent implements OnInit {
 
   ngOnInit(): void {
     this.router.events.subscribe((data: any) => {
-      if (!data.url) return;
+      if (!data.url || data.url === '' || data.url === '/') return;
       this.selectedPageTitle = this.pages.find(
         (page) => page.route === data.url
       ).title;
