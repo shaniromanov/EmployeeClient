@@ -7,6 +7,10 @@ import * as XLSX from 'xlsx';
 import { MatDialog } from '@angular/material/dialog';
 import { MaterialDialogComponent } from '../material-dialog/material-dialog.component';
 import { AddReportTypeComponent } from '../add-report-type/add-report-type.component';
+import { ActivatedRoute } from '@angular/router';
+import { isString } from 'util';
+import { EmployeeService } from 'src/app/services/employee.service';
+import { Employee } from 'src/app/models/employee';
 
 @Component({
   selector: 'app-hours-report-edit',
@@ -20,6 +24,8 @@ export class HoursReportEditComponent implements OnInit {
   maxDate: Date;
 
   newForm: FormGroup;
+  hRsTypes: { Id: number; value: string }[];
+  currentEmployee: Employee = new Employee();
 
   get hRsList(): FormArray {
     return <FormArray>this.newForm.controls.hRsList;
@@ -27,8 +33,10 @@ export class HoursReportEditComponent implements OnInit {
 
   constructor(
     private hRService: HoursReportService,
+    private empService: EmployeeService,
     private fb: FormBuilder,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private route: ActivatedRoute
   ) {
     const currentYear = new Date().getFullYear();
     this.minDate = new Date(currentYear - 20, 0, 1);
@@ -40,30 +48,74 @@ export class HoursReportEditComponent implements OnInit {
       hRsList: this.fb.array([]),
     });
 
-    this.hRService.getHRs().subscribe((res: any) => {
+    const empNumber = this.route.snapshot.paramMap.get('empId');
+
+    this.hRService.getHRsForEmployee(empNumber).subscribe((res: any) => {
       this.hrs = res;
       this.hrs.forEach((hr) => {
         this.addReportItem(hr);
       });
       this.subscribeTimeChanges();
     });
+
+    this.hRService
+      .getHrsTypes()
+      .subscribe(
+        (hRsTypes: { Id: number; value: string }[]) =>
+          (this.hRsTypes = hRsTypes)
+      );
+
+    this.empService.getEmployeeById(empNumber).subscribe((emp: Employee) => {
+      this.currentEmployee = emp;
+    });
   }
 
   subscribeTimeChanges() {
     this.hRsList.controls.forEach((ctrl) => {
-      ctrl.valueChanges.subscribe((value) => {
-        const totalHours = this.getTotalHours(value);
-        const index = this.hRsList.controls.indexOf(ctrl);
-        let totalHoursCtrl = this.hRsList.controls[index].get('totalHours');
-        if (totalHoursCtrl.value !== totalHours) {
-          totalHoursCtrl.setValue(totalHours);
-        }
-      });
+      this.onCtrlValueChanges(ctrl);
     });
   }
 
+  onCtrlValueChanges(ctrl) {
+    ctrl.valueChanges.subscribe((value) => {
+      if (!value.timeStart && !value.timeEnd) return;
+      this.updateTotalHours(ctrl, value);
+      this.updateUsualHours(ctrl, value);
+      this.updateExtraHours(ctrl, value);
+    });
+  }
+
+  updateTotalHours(ctrl, value) {
+    const totalHours = this.getTotalHours(value);
+    const index = this.hRsList.controls.indexOf(ctrl);
+    let totalHoursCtrl = this.hRsList.controls[index].get('totalHours');
+    if (totalHoursCtrl.value !== totalHours) {
+      totalHoursCtrl.setValue(totalHours);
+    }
+  }
+
+  updateUsualHours(ctrl, value) {
+    const usualHours = this.getUsualHours(value);
+    const index = this.hRsList.controls.indexOf(ctrl);
+    let usualHoursCtrl = this.hRsList.controls[index].get('usualHours');
+    if (usualHoursCtrl.value !== usualHours) {
+      usualHoursCtrl.setValue(usualHours);
+    }
+  }
+
+  updateExtraHours(ctrl, value) {
+    const extraHours = this.getExtraHours(value);
+    const index = this.hRsList.controls.indexOf(ctrl);
+    let extraHoursCtrl = this.hRsList.controls[index].get('extraHours');
+    if (extraHoursCtrl.value !== extraHours) {
+      extraHoursCtrl.setValue(extraHours);
+    }
+  }
+
   createNewReportItem() {
-    this.hRsList.push(this.getDefaultItem());
+    const newCtrl = this.getDefaultItem();
+    this.onCtrlValueChanges(newCtrl);
+    this.hRsList.push(newCtrl);
   }
 
   getDefaultItem(): FormGroup {
@@ -71,7 +123,10 @@ export class HoursReportEditComponent implements OnInit {
       date: [null, Validators.required],
       timeStart: [null, [Validators.required]],
       timeEnd: [null, [Validators.required]],
-      dayReportType: [null],
+      dayReportType: [null, [Validators.required]],
+      totalHours: [null],
+      usualHours: [null],
+      extraHours: [null],
       comment: [null],
     });
   }
@@ -83,6 +138,8 @@ export class HoursReportEditComponent implements OnInit {
       timeEnd: [hr.timeEnd, [Validators.required]],
       dayReportType: [hr.dayReportType || null],
       totalHours: [this.getTotalHours(hr)],
+      usualHours: [this.getUsualHours(hr)],
+      extraHours: [this.getExtraHours(hr)],
       comment: [hr.comment || null],
     });
   }
@@ -109,13 +166,51 @@ export class HoursReportEditComponent implements OnInit {
 
   getTotalHours(item) {
     if (!item) return;
-    let end = item.timeEnd;
-    let start = item.timeStart;
-    if (!end || !start) return '00:00';
-    let diff = moment
+    const end = item.timeEnd;
+    const start = item.timeStart;
+    if (!end || !start) {
+      return '00:00';
+    }
+    const diff = moment
       .utc(moment(end, 'HH:mm').diff(moment(start, 'HH:mm')))
       .format('HH:mm');
     return diff;
+  }
+
+  getUsualHours(item) {
+    if (!item) return;
+    const totalHours = item.totalHours;
+    const hoursPerDay = this.currentEmployee.hoursPerDay;
+    if (!totalHours) {
+      return '00:00';
+    }
+    const diff = moment(totalHours, 'HH:mm').diff(moment(hoursPerDay, 'HH:mm'));
+    if (diff > 0) {
+      return moment(hoursPerDay, 'HH:mm:ss').format('HH:mm');
+    }
+    return totalHours;
+  }
+
+  getExtraHours(item) {
+    if (!item) return;
+    const totalHours = item.totalHours;
+    const hoursPerDay = this.currentEmployee.hoursPerDay;
+    if (!totalHours) {
+      return '00:00';
+    }
+    const diff = moment(totalHours, 'HH:mm').diff(moment(hoursPerDay, 'HH:mm'));
+    if (diff > 0) {
+      const formmatedDiff = moment.utc(diff).format('HH:mm');
+      const maxExtraHours = this.currentEmployee.maximumExtraHours;
+      const maxDiff = moment(maxExtraHours, 'HH:mm').diff(
+        moment(diff, 'HH:mm')
+      );
+
+      if (maxDiff >= 0) {
+        return formmatedDiff;
+      }
+      return moment(maxExtraHours, 'HH:mm:ss').format('HH:mm');
+    }
   }
 
   addHr() {
@@ -126,10 +221,10 @@ export class HoursReportEditComponent implements OnInit {
 
   submitForm() {
     if (!this.newForm.valid) return;
-    console.log(this.newForm);
+    const empNumber = this.route.snapshot.paramMap.get('empId');
     this.hRService
-      .updateHRsForEmployee(this.getHrsArray())
-      .subscribe(() => alert('success'));
+      .updateHRsForEmployee(empNumber, this.getHrsArray())
+      .subscribe(() => this.openSavedDialog());
   }
 
   getHrsArray(): HoursReport[] {
@@ -148,6 +243,27 @@ export class HoursReportEditComponent implements OnInit {
     const dialogRef = this.dialog.open(AddReportTypeComponent, {
       width: '350px',
       data: {},
+    });
+
+    dialogRef.afterClosed().subscribe((newReportTypeList) => {
+      if (!newReportTypeList) return;
+      newReportTypeList = newReportTypeList.filter(
+        (item) => item.value && item.value.length
+      );
+      if (!newReportTypeList.length) return;
+      this.hRService.addHrsTypes(newReportTypeList).subscribe((res: any) => {
+        this.hRsTypes = res;
+      });
+    });
+  }
+
+  openSavedDialog(): void {
+    const dialogRef = this.dialog.open(MaterialDialogComponent, {
+      width: '350px',
+      data: {
+        title: 'דיווח נוכחות עודכן בהצלחה',
+        okBtn: { value: 'הבנתי' },
+      },
     });
 
     dialogRef.afterClosed().subscribe((result) => {});

@@ -24,6 +24,10 @@ import { MatDatepickerIntl } from '@angular/material/datepicker';
 import { DateAdapter } from '@angular/material/core';
 import { MomentUtcDateAdapter } from './shared/moment-utc-date-adapter ';
 import { AddReportTypeComponent } from './components/add-report-type/add-report-type.component';
+import { LoginComponent } from './components/login/login.component';
+import { MangerLoginComponent } from './components/login/pages/manger-login/manger-login.component';
+import { EmployeeLoginComponent } from './components/login/pages/employee-login/employee-login.component';
+import { SearchComponent } from './components/search/search.component';
 
 @NgModule({
   declarations: [
@@ -34,6 +38,10 @@ import { AddReportTypeComponent } from './components/add-report-type/add-report-
     MaterialDialogComponent,
     HoursReportEditComponent,
     AddReportTypeComponent,
+    LoginComponent,
+    MangerLoginComponent,
+    EmployeeLoginComponent,
+    SearchComponent,
   ],
   imports: [
     BrowserModule,

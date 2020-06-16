@@ -130,6 +130,14 @@ button:active {
   }
 }
 
+.width-100 {
+  min-width: 100% !important;
+}
+
+.bold {
+  font-weight: bold !important;
+}
+
 @media only screen and (min-width: 960px) {
   // .cdk-overlay-pane {
   //   margin-right: 170px !important;

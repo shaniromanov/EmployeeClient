@@ -9,19 +9,39 @@
     [opened]="(isHandset$ | async) === false"
   >
     <mat-nav-list>
-      <mat-toolbar class="toolbar-top"></mat-toolbar>
-      <div class="btn-nav-wrapper">
-        <button
-          *ngFor="let page of pages"
-          routerLinkActive="active"
-          class="btn-nav"
-          mat-stroked-button
-          color="primary"
-          style="width: 100%;"
-          [routerLink]="page.route"
+      <div class="toolbar-top">
+        <h3 class="bold" *ngIf="isManager">
+          שלום מנהל!
+        </h3>
+        <div
+          *ngIf="currentEmployee"
+          class="d-flex justify-content-between align-items-center"
         >
-          <mat-icon>{{ page.icon }}</mat-icon> {{ page.title }}
-        </button>
+          <div
+            class="profile-img"
+            [style.backgroundImage]="'url(' + currentEmployee.imageUrl + ')'"
+          ></div>
+          <span class="bold small-font">
+            שלום
+            {{ currentEmployee.firstName + " " + currentEmployee.lastName }}!
+          </span>
+        </div>
+      </div>
+      <div class="btn-nav-wrapper">
+        <ng-container *ngFor="let page of pages">
+          <button
+            *ngIf="!page.hidden"
+            routerLinkActive="active"
+            class="btn-nav"
+            mat-stroked-button
+            color="primary"
+            style="width: 100%;"
+            [routerLink]="page.route"
+            (click)="page.isLogout ? logout() : ''"
+          >
+            <mat-icon>{{ page.icon }}</mat-icon> {{ page.title }}
+          </button></ng-container
+        >
       </div>
     </mat-nav-list>
   </mat-sidenav>

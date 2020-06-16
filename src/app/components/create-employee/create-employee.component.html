@@ -27,7 +27,9 @@
           </mat-error>
         </mat-form-field>
       </div>
-      <br />
+
+      <div class="space"></div>
+
       <div class="d-flex justify-content-between row-wrapper">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>תעודת זהות</mat-label>
@@ -61,7 +63,9 @@
           </mat-error>
         </mat-form-field>
       </div>
-      <br />
+
+      <div class="space"></div>
+
       <div class="d-flex justify-content-between row-wrapper">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>דואר אלקטרוני</mat-label>
@@ -84,13 +88,18 @@
         <div>
           <button
             class="full-width btn-upload"
+            [style.backgroundImage]="
+              newEmpForm.value.imageUrl
+                ? 'url(' + newEmpForm.value.imageUrl + ')'
+                : 'auto'
+            "
             mat-stroked-button
             fill="outlined"
             color="primary"
             (click)="imageUpload.click()"
             type="button"
           >
-            {{ fileUploadedName ? fileUploadedName : "העלאת תמונה" }}
+            {{ newEmpForm.value.imageUrl ? "עדכון תמונה" : "העלאת תמונה" }}
             <mat-icon>add_a_photo</mat-icon>
           </button>
           <mat-error
@@ -103,6 +112,31 @@
             חובה להכניס תמונה
           </mat-error>
         </div>
+      </div>
+
+      <div class="space"></div>
+
+      <div class="d-flex justify-content-between row-wrapper">
+        <mat-form-field appearance="outline">
+          <mat-label>מס' שעות עבודה יומיות</mat-label>
+          <input matInput type="time" formControlName="hoursPerDay" />
+          <mat-error
+            *ngIf="newEmpForm.controls['hoursPerDay'].hasError('required')"
+          >
+            חובה להכניס מס' שעות עבודה יומיות
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>מקסימום שעות נוספות</mat-label>
+          <input matInput type="time" formControlName="maximumExtraHours" />
+          <mat-error
+            *ngIf="
+              newEmpForm.controls['maximumExtraHours'].hasError('required')
+            "
+          >
+            חובה להכניס מקסימום שעות נוספות
+          </mat-error>
+        </mat-form-field>
       </div>
     </mat-card-content>
     <mat-card-actions>

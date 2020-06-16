@@ -81,18 +81,23 @@
               </mat-error>
             </mat-form-field>
             <mat-form-field color="primary" appearance="fill" class="tbl-field">
-              <mat-select formControlName="dayReportType">
-                <mat-option (onSelectionChange)="addSelction()"
-                  >הוסף סוג דיווח</mat-option
+              <mat-select color="primary" formControlName="dayReportType">
+                <mat-option color="primary"
+                  ><div (click)="addSelction()">
+                    הוסף סוג דיווח
+                  </div></mat-option
                 >
+                <mat-option *ngFor="let type of hRsTypes" [value]="type.Id">{{
+                  type.value
+                }}</mat-option>
               </mat-select>
               <mat-error *ngIf="item.get('dayReportType').hasError('required')">
                 שדה חובה
               </mat-error>
             </mat-form-field>
             <span class="tbl-field">{{ item.value.totalHours }}</span>
-            <span class="tbl-field">{{ item.value.totalHours }}</span>
-            <span class="tbl-field">{{ item.value.totalHours }}</span>
+            <span class="tbl-field">{{ item.value.usualHours }}</span>
+            <span class="tbl-field">{{ item.value.extraHours }}</span>
             <mat-form-field appearance="fill" class="tbl-field">
               <textarea matInput rows="1" formControlName="comment"></textarea>
             </mat-form-field>

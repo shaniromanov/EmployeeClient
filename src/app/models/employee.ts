@@ -1,3 +1,5 @@
+import { Time } from '@angular/common';
+
 export class Employee {
   imageUrl: string;
   employeeNumber: number;
@@ -8,4 +10,6 @@ export class Employee {
   numUploadedProfiles: number;
   phone: string;
   email: string;
+  hoursPerDay: Time;
+  maximumExtraHours: Time;
 }

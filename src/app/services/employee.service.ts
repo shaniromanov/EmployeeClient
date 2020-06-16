@@ -16,6 +16,19 @@ export class EmployeeService {
     return this.http.post('https://localhost:44319/api/AddEmployee', employee);
   }
 
+  updateEmployee(empNumber: string, value: any) {
+    return this.http.post(
+      `https://localhost:44319/api/UpdateEmployee/${empNumber}`,
+      value
+    );
+  }
+
+  getEmployeeById(empNumber: string) {
+    return this.http.get(
+      `https://localhost:44319/api/GetEmployeeById/${empNumber}`
+    );
+  }
+
   getEmployees() {
     return this.http.get('https://localhost:44319/api/GetEmployees');
   }

@@ -12,23 +12,27 @@ export class HoursReportService {
     return this.http.post('https://localhost:44319/api/AddHR', hR);
   }
 
-  addHrsTypes(newReportTypeList: string[]) {
+  addHrsTypes(newReportTypeList: any[]) {
     return this.http.post(
       'https://localhost:44319/api/AddHRsTypes',
       newReportTypeList
     );
   }
 
-  updateHRsForEmployee(hRs: HoursReport[]) {
+  getHrsTypes() {
+    return this.http.get('https://localhost:44319/api/GetHRsTypes');
+  }
+
+  updateHRsForEmployee(empNumber, hRs: HoursReport[]) {
     return this.http.post(
-      `https://localhost:44319/api/UpdateHRsForEmployee/${'6'}`,
+      `https://localhost:44319/api/UpdateHRsForEmployee/${empNumber}`,
       hRs
     );
   }
 
-  getHRs() {
+  getHRsForEmployee(empNumber: string) {
     return this.http.get(
-      `https://localhost:44319/api/GetHRsForEmployee/${'6'}`
+      `https://localhost:44319/api/GetHRsForEmployee/${empNumber}`
     );
   }
 }

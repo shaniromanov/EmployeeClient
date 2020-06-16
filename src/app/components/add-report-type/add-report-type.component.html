@@ -1,35 +1,37 @@
 <h2 class="text-center" mat-dialog-title>הוספת סוג דיווח</h2>
 <div mat-dialog-content>
-  <form>
-    <div *ngFor="let type of newReportTypeList; let i = index">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>סוג דיווח</mat-label>
-        <input
-          matInput
-          name="type-{{ i }}"
-          [(ngModel)]="newReportTypeList[i]"
-        />
-      </mat-form-field>
-    </div>
-    <button
-      mat-stroked-button
-      (click)="addNewType()"
-      color="primary"
-      type="button"
+  <form [formGroup]="myForm">
+    <div
+      formArrayName="typesList"
+      *ngFor="let control of typesList.controls; let i = index"
     >
-      <mat-icon>add_box</mat-icon>
-    </button>
+      <div [formGroupName]="i">
+        <mat-form-field appearance="outline" class="width-100">
+          <mat-label>סוג דיווח</mat-label>
+          <input matInput formControlName="value" />
+        </mat-form-field>
+      </div>
+    </div>
   </form>
+  <button
+    mat-stroked-button
+    (click)="addNewType()"
+    color="primary"
+    type="button"
+  >
+    <mat-icon>add_box</mat-icon>
+    הוספת סוג
+  </button>
 </div>
-<div mat-dialog-actions>
+<br />
+<div mat-dialog-actions class="d-flex justify-content-between">
   <button mat-button (click)="onNoClick()">
     ביטול
   </button>
   <button
     mat-button
     color="primary"
-    (click)="save()"
-    [mat-dialog-close]="'ok'"
+    [mat-dialog-close]="typesList.value"
     cdkFocusInitial
   >
     אישור

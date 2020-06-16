@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { HoursReportService } from 'src/app/services/hours-report.service';
+import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 
 @Component({
   selector: 'app-add-report-type',
@@ -8,26 +8,37 @@ import { HoursReportService } from 'src/app/services/hours-report.service';
   styleUrls: ['./add-report-type.component.scss'],
 })
 export class AddReportTypeComponent implements OnInit {
-  newReportTypeList: string[] = [null];
+  myForm: any;
 
   constructor(
-    private hRService: HoursReportService,
     public dialogRef: MatDialogRef<AddReportTypeComponent>,
     @Inject(MAT_DIALOG_DATA)
-    public data: any
+    public data: any,
+    private fb: FormBuilder
   ) {}
 
-  ngOnInit(): void {}
+  get typesList(): FormArray {
+    return <FormArray>this.myForm.controls.typesList;
+  }
 
-  onNoClick(): void {
-    this.dialogRef.close();
+  ngOnInit(): void {
+    this.myForm = this.fb.group({
+      typesList: this.fb.array([]),
+    });
+    this.addNewType();
   }
 
   addNewType() {
-    this.newReportTypeList.push(null);
+    this.typesList.push(this.getDefaultItem());
   }
 
-  save() {
-    this.hRService.addHrsTypes(this.newReportTypeList).subscribe((res) => {});
+  getDefaultItem(): FormGroup {
+    return this.fb.group({
+      value: [null, Validators.required],
+    });
+  }
+
+  onNoClick(): void {
+    this.dialogRef.close();
   }
 }

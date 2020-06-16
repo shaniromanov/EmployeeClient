@@ -1,0 +1,35 @@
+<mat-card class="small-card">
+  <form #myForm="ngForm" (submit)="login(myForm)">
+    <div>
+      <mat-form-field appearance="outline" class="width-100">
+        <mat-label>קוד משתמש</mat-label>
+        <input required matInput name="username" [(ngModel)]="username" />
+        <mat-error> שדה חובה </mat-error>
+      </mat-form-field>
+    </div>
+    <br />
+    <div>
+      <mat-form-field appearance="outline" class="width-100">
+        <mat-label>סיסמא</mat-label>
+        <input
+          required
+          type="password"
+          matInput
+          name="password"
+          [(ngModel)]="password"
+        />
+        <mat-error> שדה חובה </mat-error>
+      </mat-form-field>
+    </div>
+    <br />
+    <div class="d-flex justify-content-end">
+      <button type="submit" color="primary" class="width-100" mat-raised-button>
+        <mat-icon>login</mat-icon>
+        כניסה
+      </button>
+      <!-- <button routerLink="/emp-login" color="primary" mat-stroked-button>
+      הרשמה
+    </button> -->
+    </div>
+  </form>
+</mat-card>

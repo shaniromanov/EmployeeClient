@@ -3,7 +3,13 @@
   height: 51px;
   margin-top: 4px;
   text-align: right;
+  background-position: left !important;
+  background-repeat: no-repeat !important;
+  background-size: contain !important;
 }
 .row-wrapper {
   width: 450px;
+}
+.space {
+  height: 5px;
 }

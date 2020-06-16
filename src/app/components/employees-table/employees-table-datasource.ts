@@ -13,41 +13,7 @@ export interface EmployeesTableItem {
   id: number;
 }
 
-const EMPS: Employee[] = [
-  {
-    employeeNumber: 1,
-    employeeId: '1222',
-    email: 'a@a.vo',
-    dateAdded: new Date(),
-    firstName: 'niri',
-    imageUrl: '../../../assets/mockup/New employee screen.jpg',
-    lastName: 'esthhh',
-    numUploadedProfiles: 2,
-    phone: '052333333',
-  },
-  {
-    employeeNumber: 2,
-    employeeId: '1222',
-    email: 'a@a.vo',
-    dateAdded: new Date(),
-    firstName: 'www',
-    imageUrl: '../../../assets/mockup/New employee screen.jpg',
-    lastName: 'www',
-    numUploadedProfiles: 2,
-    phone: '052333333',
-  },
-  {
-    employeeNumber: 3,
-    employeeId: '1222',
-    email: 'a@a.vo',
-    dateAdded: new Date(),
-    firstName: 'ss',
-    imageUrl: '../../../assets/mockup/New employee screen.jpg',
-    lastName: 'ss',
-    numUploadedProfiles: 2,
-    phone: '052333333',
-  },
-];
+const EMPS: Employee[] = [];
 
 /**
  * Data source for the EmployeesTable view. This class should

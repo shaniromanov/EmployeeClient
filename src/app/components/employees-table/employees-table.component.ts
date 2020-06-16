@@ -18,7 +18,7 @@ export class EmployeesTableComponent implements AfterViewInit, OnInit {
   dataSource: EmployeesTableDataSource;
 
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
-  displayedColumns = ['fullName', 'tz', 'email', 'phone', 'image'];
+  displayedColumns = ['fullName', 'tz', 'email', 'phone', 'image', 'actions'];
 
   constructor(private empService: EmployeeService) {}
 

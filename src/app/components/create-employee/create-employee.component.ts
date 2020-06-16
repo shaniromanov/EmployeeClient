@@ -4,6 +4,7 @@ import { Employee } from 'src/app/models/employee';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MaterialDialogComponent } from '../material-dialog/material-dialog.component';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-create-employee',
@@ -28,6 +29,8 @@ export class CreateEmployeeComponent implements OnInit {
     ],
     email: [null, [Validators.required, Validators.email]],
     imageUrl: [null, Validators.required],
+    hoursPerDay: ['09:00', Validators.required],
+    maximumExtraHours: ['00:00'],
   });
 
   fileUploadedName: string;
@@ -35,10 +38,23 @@ export class CreateEmployeeComponent implements OnInit {
   constructor(
     private empService: EmployeeService,
     private fb: FormBuilder,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    const empNumber = this.route.snapshot.paramMap.get('empId');
+    if (empNumber) {
+      this.empService.getEmployeeById(empNumber).subscribe((emp) => {
+        const empMappedToForm = {};
+        for (const key in this.newEmpForm.value) {
+          empMappedToForm[key] = emp[key] ? emp[key] : null;
+        }
+        this.newEmpForm.setValue(empMappedToForm);
+      });
+    }
+  }
 
   uploadImage(event) {
     const file = (event.target as HTMLInputElement).files[0];
@@ -57,35 +73,49 @@ export class CreateEmployeeComponent implements OnInit {
       return;
     }
 
-    for (const field in this.newEmpForm.value) {
-      const value = this.newEmpForm.value[field];
-      this.employee[field] = value;
+    const empNumber = this.route.snapshot.paramMap.get('empId');
+    if (empNumber) {
+      this.empService
+        .updateEmployee(empNumber, {
+          ...this.newEmpForm.value,
+          employeeNumber: +empNumber,
+        })
+        .subscribe(
+          (emp) => this.openDialog(true),
+          (err) => {
+            this.openDialog(false);
+          }
+        );
+    } else {
+      this.empService.addEmployee(this.newEmpForm.value).subscribe(
+        (emp) => this.openDialog(true, true),
+        (err) => {
+          this.openDialog(false, true);
+        }
+      );
     }
-    this.empService.addEmployee(this.employee).subscribe(
-      (emp) => this.openDialog(true),
-      (err) => {
-        this.openDialog(false);
-      }
-    );
   }
 
-  openDialog(isOK): void {
+  openDialog(isOK, isNew?): void {
+    const fullName =
+      this.newEmpForm.value.firstName + ' ' + this.newEmpForm.value.lastName;
+
     const dialogRef = this.dialog.open(MaterialDialogComponent, {
       width: '350px',
       data: {
-        title:
-          'הוספת עובד/ת: ' +
-          this.employee.firstName +
-          ' ' +
-          this.employee.lastName,
-        content: isOK
-          ? 'ההרשמה בוצעה בהצלחה'
-          : 'ההרשמה נכשלה - יתכן שעובד בעל מספר זהות זה קיים במערכת',
+        title: isNew
+          ? 'הוספת עובד/ת: ' + fullName
+          : 'עדכון פרטי עובד/ת: ' + fullName,
+        content: isOK ? 'הפעולה בוצעה בהצלחה' : 'הפעולה נכשלה',
         okBtn: { value: 'הבנתי' },
       },
     });
 
-    dialogRef.afterClosed().subscribe((result) => {});
+    dialogRef.afterClosed().subscribe((result) => {
+      if (isNew) {
+        this.router.navigateByUrl('/emp-list');
+      }
+    });
   }
 
   resetForm() {
