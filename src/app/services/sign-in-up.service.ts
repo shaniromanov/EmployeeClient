@@ -7,26 +7,34 @@ import { Employee } from '../models/employee';
   providedIn: 'root',
 })
 export class SignInUpService {
-  managerLogin: Subject<{ isLogin: boolean }> = new Subject();
-  empLogin: Subject<{ isLogin: boolean; employee: Employee }> = new Subject();
-  isManagerLogin: boolean;
-  isEmpLogin: boolean;
+  managerLogin: Subject<{ isLoggedIn: boolean }> = new Subject();
+  employeeLogin: Subject<{
+    isLoggedIn: boolean;
+    employee: Employee;
+  }> = new Subject();
+  managerLoggedIn: boolean;
+  employeeLoggedIn: boolean;
   currentEmployee;
 
-  constructor(private http: HttpClient) {
-    this.managerLogin.subscribe((obj) => (this.isManagerLogin = obj.isLogin));
-    this.empLogin.subscribe((obj) => {
-      this.isEmpLogin = obj.isLogin;
-      this.currentEmployee = obj.employee;
-    });
+  constructor(private http: HttpClient) {}
+
+  setEmployeeLogin(isLoggedIn: boolean, employee: Employee) {
+    this.employeeLoggedIn = isLoggedIn;
+    this.currentEmployee = employee;
+    this.employeeLogin.next({ isLoggedIn, employee });
   }
 
-  getIsManagerLogin() {
-    return this.isManagerLogin;
+  setManagerLogin(isLoggedIn: boolean) {
+    this.managerLoggedIn = isLoggedIn;
+    this.managerLogin.next({ isLoggedIn });
   }
 
-  getIsEmployeeLogin() {
-    return this.isEmpLogin;
+  isManagerLoggedIn() {
+    return this.managerLoggedIn;
+  }
+
+  isEmployeeLoggedIn() {
+    return this.employeeLoggedIn;
   }
 
   getCurrentEmployee() {

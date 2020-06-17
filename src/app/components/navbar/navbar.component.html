@@ -10,11 +10,11 @@
   >
     <mat-nav-list>
       <div class="toolbar-top">
-        <h3 class="bold" *ngIf="isManager">
+        <h3 class="bold" *ngIf="managerLoggedIn">
           שלום מנהל!
         </h3>
         <div
-          *ngIf="currentEmployee"
+          *ngIf="employeeLoggedIn"
           class="d-flex justify-content-between align-items-center"
         >
           <div
@@ -27,10 +27,16 @@
           </span>
         </div>
       </div>
+
       <div class="btn-nav-wrapper">
         <ng-container *ngFor="let page of pages">
           <button
-            *ngIf="!page.hidden"
+            *ngIf="
+              (managerLoggedIn && page.mangerSettings?.viewMenuTab) ||
+              (employeeLoggedIn && page.employeeSettings?.viewMenuTab) ||
+              (!managerLoggedIn && !employeeLoggedIn && page.isLogin) ||
+              ((managerLoggedIn || employeeLoggedIn) && page.isLogout)
+            "
             routerLinkActive="active"
             class="btn-nav"
             mat-stroked-button
@@ -56,7 +62,7 @@
       >
         <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
       </button>
-      <span>{{ selectedPageTitle }}</span>
+      <span>{{ currentPage?.title }}</span>
     </mat-toolbar>
     <div class="content-wrapper">
       <ng-content></ng-content>

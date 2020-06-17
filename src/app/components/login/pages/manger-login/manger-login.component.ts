@@ -20,7 +20,7 @@ export class MangerLoginComponent implements OnInit {
 
   login(form: NgForm) {
     if (!form.valid) return;
-    this.signInUpService.managerLogin.next({ isLogin: true });
+    this.signInUpService.setManagerLogin(true);
     this.router.navigateByUrl('emp-list');
   }
 }

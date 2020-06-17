@@ -29,7 +29,7 @@ export class EmployeeLoginComponent implements OnInit {
       })
       .subscribe(
         (emp: Employee) => {
-          this.signInUpService.empLogin.next({ isLogin: true, employee: emp });
+          this.signInUpService.setEmployeeLogin(true, emp);
           this.router.navigateByUrl(`report-edit/${emp.employeeNumber}`);
         },
         (err) => {

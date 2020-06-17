@@ -82,7 +82,7 @@
             </mat-form-field>
             <mat-form-field color="primary" appearance="fill" class="tbl-field">
               <mat-select color="primary" formControlName="dayReportType">
-                <mat-option color="primary"
+                <mat-option color="primary" *ngIf="isManager"
                   ><div (click)="addSelction()">
                     הוסף סוג דיווח
                   </div></mat-option

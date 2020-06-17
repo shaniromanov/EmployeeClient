@@ -107,7 +107,7 @@ export class CreateEmployeeComponent implements OnInit {
           ? 'הוספת עובד/ת: ' + fullName
           : 'עדכון פרטי עובד/ת: ' + fullName,
         content: isOK ? 'הפעולה בוצעה בהצלחה' : 'הפעולה נכשלה',
-        okBtn: { value: 'הבנתי' },
+        okBtn: { value: 'אישור' },
       },
     });
 

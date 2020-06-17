@@ -11,6 +11,7 @@ import { ActivatedRoute } from '@angular/router';
 import { isString } from 'util';
 import { EmployeeService } from 'src/app/services/employee.service';
 import { Employee } from 'src/app/models/employee';
+import { SignInUpService } from 'src/app/services/sign-in-up.service';
 
 @Component({
   selector: 'app-hours-report-edit',
@@ -26,6 +27,7 @@ export class HoursReportEditComponent implements OnInit {
   newForm: FormGroup;
   hRsTypes: { Id: number; value: string }[];
   currentEmployee: Employee = new Employee();
+  isManager: boolean;
 
   get hRsList(): FormArray {
     return <FormArray>this.newForm.controls.hRsList;
@@ -34,6 +36,7 @@ export class HoursReportEditComponent implements OnInit {
   constructor(
     private hRService: HoursReportService,
     private empService: EmployeeService,
+    private signInUpService: SignInUpService,
     private fb: FormBuilder,
     public dialog: MatDialog,
     private route: ActivatedRoute
@@ -68,6 +71,12 @@ export class HoursReportEditComponent implements OnInit {
     this.empService.getEmployeeById(empNumber).subscribe((emp: Employee) => {
       this.currentEmployee = emp;
     });
+
+    this.isManager = this.signInUpService.isManagerLoggedIn();
+
+    this.signInUpService.managerLogin.subscribe(
+      (obj) => (this.isManager = obj.isLoggedIn)
+    );
   }
 
   subscribeTimeChanges() {
@@ -132,20 +141,23 @@ export class HoursReportEditComponent implements OnInit {
   }
 
   createItemFormReport(hr: HoursReport): FormGroup {
+    const totalHours = this.getTotalHours(hr);
+
     return this.fb.group({
       date: [hr.date, Validators.required],
       timeStart: [hr.timeStart, [Validators.required]],
       timeEnd: [hr.timeEnd, [Validators.required]],
       dayReportType: [hr.dayReportType || null],
-      totalHours: [this.getTotalHours(hr)],
-      usualHours: [this.getUsualHours(hr)],
-      extraHours: [this.getExtraHours(hr)],
+      totalHours: [totalHours],
+      usualHours: [this.getUsualHours(hr, totalHours)],
+      extraHours: [this.getExtraHours(hr, totalHours)],
       comment: [hr.comment || null],
     });
   }
 
   addReportItem(hr): void {
-    this.hRsList.push(this.createItemFormReport(hr));
+    const itemFromReport = this.createItemFormReport(hr);
+    this.hRsList.push(itemFromReport);
   }
 
   removeReportItem(index): void {
@@ -177,9 +189,9 @@ export class HoursReportEditComponent implements OnInit {
     return diff;
   }
 
-  getUsualHours(item) {
+  getUsualHours(item, hrTotalsHours?) {
     if (!item) return;
-    const totalHours = item.totalHours;
+    const totalHours = item.totalHours || hrTotalsHours;
     const hoursPerDay = this.currentEmployee.hoursPerDay;
     if (!totalHours) {
       return '00:00';
@@ -191,9 +203,9 @@ export class HoursReportEditComponent implements OnInit {
     return totalHours;
   }
 
-  getExtraHours(item) {
+  getExtraHours(item, hrTotalsHours?) {
     if (!item) return;
-    const totalHours = item.totalHours;
+    const totalHours = item.totalHours || hrTotalsHours;
     const hoursPerDay = this.currentEmployee.hoursPerDay;
     if (!totalHours) {
       return '00:00';
@@ -202,15 +214,19 @@ export class HoursReportEditComponent implements OnInit {
     if (diff > 0) {
       const formmatedDiff = moment.utc(diff).format('HH:mm');
       const maxExtraHours = this.currentEmployee.maximumExtraHours;
-      const maxDiff = moment(maxExtraHours, 'HH:mm').diff(
-        moment(diff, 'HH:mm')
+      const formattedMaxExtraHours = moment(maxExtraHours, 'HH:mm:ss').format(
+        'HH:mm'
+      );
+      const maxDiff = moment(formattedMaxExtraHours, 'HH:mm').diff(
+        moment(formmatedDiff, 'HH:mm')
       );
 
       if (maxDiff >= 0) {
         return formmatedDiff;
       }
-      return moment(maxExtraHours, 'HH:mm:ss').format('HH:mm');
+      return formattedMaxExtraHours;
     }
+    return '00:00';
   }
 
   addHr() {
@@ -262,7 +278,7 @@ export class HoursReportEditComponent implements OnInit {
       width: '350px',
       data: {
         title: 'דיווח נוכחות עודכן בהצלחה',
-        okBtn: { value: 'הבנתי' },
+        okBtn: { value: 'אישור' },
       },
     });
 

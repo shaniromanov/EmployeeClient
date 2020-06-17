@@ -12,50 +12,67 @@ import { Employee } from 'src/app/models/employee';
   styleUrls: ['./navbar.component.scss'],
 })
 export class NavbarComponent implements OnInit {
-  selectedPageTitle: string;
+  currentPage: any;
   pages = [
-    { route: '/login-main', title: 'כניסה למערכת', icon: 'login' },
-    { route: '/manager-login', title: 'כניסת מנהל', hidden: true },
-    { route: '/emp-login', title: 'כניסת עובד', hidden: true },
+    {
+      route: '/login-main',
+      title: 'כניסה למערכת',
+      icon: 'login',
+      isLogin: true,
+      unlimitedAccess: true,
+    },
+    {
+      route: '/manager-login',
+      title: 'כניסת מנהל',
+      unlimitedAccess: true,
+    },
+    {
+      route: '/emp-login',
+      title: 'כניסת עובד',
+      unlimitedAccess: true,
+    },
     {
       route: '/create-emp',
       title: 'הוספת עובד/ת',
       icon: 'person_add',
-      isManager: true,
-      hidden: true,
+      mangerSettings: { access: true, viewMenuTab: true },
     },
     {
       route: '/edit-emp',
       title: 'עריכת עובד/ת',
       icon: 'person_edit',
-      isManager: true,
-      hidden: true,
+      mangerSettings: { access: true, viewMenuTab: false },
     },
     {
       route: '/emp-list',
       title: 'רשימת עובדים',
       icon: 'people',
-      isManager: true,
-      hidden: true,
+      mangerSettings: { access: true, viewMenuTab: true },
     },
-    { route: '/search', title: 'חיפוש', icon: 'search', isManager: true },
+    {
+      route: '/search',
+      title: 'חיפוש',
+      icon: 'search',
+      mangerSettings: { access: true, viewMenuTab: true },
+    },
     {
       route: '/report-edit',
       title: 'דיווח נוכחות',
       icon: 'calendar_today',
-      isEmp: true,
-      hidden: true,
+      employeeSettings: { access: true, viewMenuTab: true },
+      mangerSettings: { access: true, viewMenuTab: false },
     },
     {
       route: '/login-main',
       title: 'יציאה מהמערכת',
       icon: 'logout',
       isLogout: true,
-      hidden: true,
+      unlimitedAccess: true,
     },
   ];
   currentEmployee: Employee;
-  isManager: boolean;
+  managerLoggedIn: boolean;
+  employeeLoggedIn: boolean;
 
   isHandset$: Observable<boolean> = this.breakpointObserver
     .observe(Breakpoints.Handset)
@@ -71,64 +88,59 @@ export class NavbarComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.managerLoggedIn = this.signInUpService.isManagerLoggedIn();
+    this.employeeLoggedIn = this.signInUpService.isEmployeeLoggedIn();
+    this.currentEmployee = this.signInUpService.getCurrentEmployee();
+
+    this.subsribeToUrlNavigation();
+    this.subscribeToManagerLogIn();
+    this.subscribeToEmployeeLogIn();
+  }
+
+  subsribeToUrlNavigation() {
     this.router.events.subscribe((data: any) => {
       if (!data.url || data.url === '' || data.url === '/') return;
-      this.selectedPageTitle = this.pages.find((page) =>
+
+      const currentPage = this.pages.find((page) =>
         data.url.includes(page.route)
-      ).title;
-    });
+      );
 
-    this.subscribeToManagerLogInOut();
-    this.subscribeToEmployeeLogInOut();
-  }
+      let isAccessableUrl = false;
 
-  subscribeToManagerLogInOut() {
-    this.signInUpService.managerLogin.subscribe((obj: any) => {
-      if (obj.isLogin) {
-        this.isManager = true;
-        this.pages.find((page) => page.route === '/login-main').hidden = true;
-        this.pages.find((page) => page.icon === 'logout').hidden = false;
-        this.pages.forEach((page) => {
-          if (page.isManager) {
-            page.hidden = false;
-          } else if (page.isEmp) {
-            page.hidden = true;
-          }
-        });
+      if (currentPage.unlimitedAccess) {
+        isAccessableUrl = true;
+      } else if (this.managerLoggedIn) {
+        isAccessableUrl = currentPage.mangerSettings.access;
+      } else if (this.employeeLoggedIn) {
+        isAccessableUrl = currentPage.employeeSettings.access;
+      }
+
+      if (isAccessableUrl) {
+        this.currentPage = currentPage;
       } else {
-        this.isManager = false;
-        this.pages.forEach((page) => (page.hidden = true));
-        this.pages.find((page) => page.route === '/login-main').hidden = false;
+        this.router.navigateByUrl('/');
       }
     });
   }
 
-  subscribeToEmployeeLogInOut() {
-    this.signInUpService.empLogin.subscribe((obj: any) => {
-      if (obj.isLogin) {
-        this.currentEmployee = obj.employee;
-        this.pages.find((page) => page.route === '/login-main').hidden = true;
-        this.pages.find((page) => page.icon === 'logout').hidden = false;
-        this.pages.forEach((page) => {
-          if (page.isEmp) {
-            page.hidden = false;
-          } else if (page.isManager) {
-            page.hidden = true;
-          }
-        });
-      } else {
-        this.pages.forEach((page) => (page.hidden = true));
-        this.pages.find((page) => page.route === '/login-main').hidden = false;
-        this.currentEmployee = null;
-      }
+  subscribeToManagerLogIn() {
+    this.signInUpService.managerLogin.subscribe((obj) => {
+      this.managerLoggedIn = obj.isLoggedIn;
+    });
+  }
+
+  subscribeToEmployeeLogIn() {
+    this.signInUpService.employeeLogin.subscribe((obj) => {
+      this.employeeLoggedIn = obj.isLoggedIn;
+      this.currentEmployee = obj.employee;
     });
   }
 
   logout() {
-    if (this.isManager) {
-      this.signInUpService.managerLogin.next({ isLogin: false });
+    if (this.managerLoggedIn) {
+      this.signInUpService.setManagerLogin(false);
     } else {
-      this.signInUpService.empLogin.next({ isLogin: false, employee: null });
+      this.signInUpService.setEmployeeLogin(false, null);
     }
   }
 }
