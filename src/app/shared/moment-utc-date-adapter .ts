@@ -11,6 +11,8 @@ export class MomentUtcDateAdapter extends MomentDateAdapter {
   }
 
   createDate(year: number, month: number, date: number): Moment {
+    console.log('createDate', date);
+
     // Moment.js will create an invalid date if any of the components are out of bounds, but we
     // explicitly check each case so we can throw more descriptive errors.
     if (month < 0 || month > 11) {
@@ -34,11 +36,13 @@ export class MomentUtcDateAdapter extends MomentDateAdapter {
   }
 
   format(date, displayFormat) {
+    console.log('formatted', date);
+
     date = this.clone(date);
     if (!this.isValid(date)) {
       throw Error('MomentDateAdapter: Cannot format invalid date.');
     }
 
-    return moment.utc(date).format('DD/MM/YYYY');
+    return moment(date).format('DD/MM/YYYY');
   }
 }

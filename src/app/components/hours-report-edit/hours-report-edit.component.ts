@@ -12,6 +12,7 @@ import { isString } from 'util';
 import { EmployeeService } from 'src/app/services/employee.service';
 import { Employee } from 'src/app/models/employee';
 import { SignInUpService } from 'src/app/services/sign-in-up.service';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-hours-report-edit',
@@ -28,6 +29,16 @@ export class HoursReportEditComponent implements OnInit {
   hRsTypes: { Id: number; value: string }[];
   currentEmployee: Employee = new Employee();
   isManager: boolean;
+  hebrewTitles = {
+    date: 'תאריך:',
+    timeStart: 'שעת התחלה:',
+    timeEnd: 'שעת סיום:',
+    dayReportType: 'סוג דיווח:',
+    totalHours: 'סך שעות:',
+    usualHours: 'שעות רגילות:',
+    extraHours: 'שעות נוספות:',
+    comment: 'הערה:',
+  };
 
   get hRsList(): FormArray {
     return <FormArray>this.newForm.controls.hRsList;
@@ -168,7 +179,7 @@ export class HoursReportEditComponent implements OnInit {
     /*name of the excel-file which will be downloaded. */
 
     const fileName = 'ExcelSheet.xlsx';
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.getHrsArray());
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.getHrsArray(true));
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
 
@@ -243,10 +254,25 @@ export class HoursReportEditComponent implements OnInit {
       .subscribe(() => this.openSavedDialog());
   }
 
-  getHrsArray(): HoursReport[] {
+  getHrsArray(isForExcel?): HoursReport[] {
     let hRsArray = [];
-    this.hRsList.controls.forEach((ctrl) => {
-      const itemForExcel = hRsArray.push(ctrl.value);
+
+    const _hrList = _.cloneDeep(this.hRsList);
+    _hrList.value.forEach((row) => {
+      let item = row;
+      if (isForExcel) {
+        for (const key in row) {
+          let value = row[key];
+          if (key == 'date') {
+            value = moment(value).format('DD/MM/YY');
+          } else if (key == 'dayReportType') {
+            value = this.hRsTypes.find((type) => type.Id == value).value;
+          }
+          item[this.hebrewTitles[key]] = value;
+          delete item[key];
+        }
+      }
+      hRsArray.push(row);
     });
     return hRsArray;
   }
