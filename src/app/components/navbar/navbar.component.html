@@ -62,7 +62,14 @@
       >
         <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
       </button>
-      <span>{{ currentPage?.title }}</span>
+      <span
+        >{{ currentPage?.title }}
+        {{
+          managerLoggedIn && currentPage?.route == "/report-edit"
+            ? " - " + fullName(currntEmpHRs)
+            : ""
+        }}</span
+      >
     </mat-toolbar>
     <div class="content-wrapper">
       <ng-content></ng-content>

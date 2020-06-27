@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { HoursReportService } from 'src/app/services/hours-report.service';
 import { HoursReport } from 'src/app/models/hoursReport';
 import { Validators, FormBuilder, FormGroup, FormArray } from '@angular/forms';
@@ -7,12 +7,14 @@ import * as XLSX from 'xlsx';
 import { MatDialog } from '@angular/material/dialog';
 import { MaterialDialogComponent } from '../material-dialog/material-dialog.component';
 import { AddReportTypeComponent } from '../add-report-type/add-report-type.component';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { isString } from 'util';
 import { EmployeeService } from 'src/app/services/employee.service';
 import { Employee } from 'src/app/models/employee';
 import { SignInUpService } from 'src/app/services/sign-in-up.service';
 import * as _ from 'lodash';
+import { PrintService } from 'src/app/services/print.service';
+import { utils } from 'protractor';
 
 @Component({
   selector: 'app-hours-report-edit',
@@ -25,7 +27,10 @@ export class HoursReportEditComponent implements OnInit {
   minDate: Date;
   maxDate: Date;
 
-  newForm: FormGroup;
+  newForm: FormGroup = this.fb.group({
+    hRsList: this.fb.array([]),
+  });
+
   hRsTypes: { Id: number; value: string }[];
   currentEmployee: Employee = new Employee();
   isManager: boolean;
@@ -40,8 +45,46 @@ export class HoursReportEditComponent implements OnInit {
     comment: 'הערה:',
   };
 
+  monthYearSearch: string;
+  isReadonly: boolean;
+
+  @Input() set monthlyHRs(value) {
+    if (this.hRsList.controls.length > 0) {
+      this.hRsList = this.fb.array([]);
+    }
+    this.hrs = value;
+    this.hrs.forEach((hr) => {
+      this.addReportItem(hr);
+    });
+    this.subscribeTimeChanges();
+  }
+
+  _currentSearch;
+  @Input() set currentSearch(search) {
+    this._currentSearch = search;
+    this.empService
+      .getEmployeeById(search.employeeNumber)
+      .subscribe((emp: Employee) => {
+        this.currentEmployee = emp;
+      });
+
+    this.monthYearSearch = search.month + '/' + search.year;
+  }
+
+  private _searchMode: boolean;
+  @Input() set searchMode(value) {
+    this._searchMode = value;
+    this.isReadonly = true;
+  }
+  get searchMode() {
+    return this._searchMode;
+  }
+
   get hRsList(): FormArray {
     return <FormArray>this.newForm.controls.hRsList;
+  }
+  set hRsList(value) {
+    this.newForm.controls.hRsList = value;
   }
 
   constructor(
@@ -50,27 +93,32 @@ export class HoursReportEditComponent implements OnInit {
     private signInUpService: SignInUpService,
     private fb: FormBuilder,
     public dialog: MatDialog,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router,
+    private printService: PrintService
   ) {
     const currentYear = new Date().getFullYear();
     this.minDate = new Date(currentYear - 20, 0, 1);
     this.maxDate = new Date(currentYear + 1, 11, 31);
   }
 
-  ngOnInit(): void {
-    this.newForm = this.fb.group({
-      hRsList: this.fb.array([]),
-    });
+  ngOnInit() {
+    if (!this.searchMode) {
+      const empNumber = this.route.snapshot.paramMap.get('empId');
 
-    const empNumber = this.route.snapshot.paramMap.get('empId');
-
-    this.hRService.getHRsForEmployee(empNumber).subscribe((res: any) => {
-      this.hrs = res;
-      this.hrs.forEach((hr) => {
-        this.addReportItem(hr);
+      this.hRService.getHRsForEmployee(empNumber).subscribe((res: any) => {
+        this.hrs = res;
+        this.hrs.forEach((hr) => {
+          this.addReportItem(hr);
+        });
+        this.subscribeTimeChanges();
       });
-      this.subscribeTimeChanges();
-    });
+
+      this.empService.getEmployeeById(empNumber).subscribe((emp: Employee) => {
+        this.currentEmployee = emp;
+        this.empService.currentEmployeeHRs.next(emp);
+      });
+    }
 
     this.hRService
       .getHrsTypes()
@@ -79,15 +127,25 @@ export class HoursReportEditComponent implements OnInit {
           (this.hRsTypes = hRsTypes)
       );
 
-    this.empService.getEmployeeById(empNumber).subscribe((emp: Employee) => {
-      this.currentEmployee = emp;
-    });
-
     this.isManager = this.signInUpService.isManagerLoggedIn();
 
     this.signInUpService.managerLogin.subscribe(
       (obj) => (this.isManager = obj.isLoggedIn)
     );
+
+    if (this.route.snapshot.routeConfig.path.includes('print')) {
+      this.isReadonly = true;
+      let interval = setInterval(() => {
+        if (
+          this.hRsTypes &&
+          this.hRsList?.controls?.length > 0 &&
+          this.currentEmployee
+        ) {
+          clearInterval(interval);
+          this.printService.onDataReady();
+        }
+      });
+    }
   }
 
   subscribeTimeChanges() {
@@ -140,14 +198,23 @@ export class HoursReportEditComponent implements OnInit {
 
   getDefaultItem(): FormGroup {
     return this.fb.group({
-      date: [null, Validators.required],
-      timeStart: [null, [Validators.required]],
-      timeEnd: [null, [Validators.required]],
-      dayReportType: [null, [Validators.required]],
-      totalHours: [null],
-      usualHours: [null],
-      extraHours: [null],
-      comment: [null],
+      date: [{ value: null, disabled: this.isReadonly }, Validators.required],
+      timeStart: [
+        { value: null, disabled: this.isReadonly },
+        [Validators.required],
+      ],
+      timeEnd: [
+        { value: null, disabled: this.isReadonly },
+        [Validators.required],
+      ],
+      dayReportType: [
+        { value: null, disabled: this.isReadonly },
+        [Validators.required],
+      ],
+      totalHours: [{ value: null, disabled: this.isReadonly }],
+      usualHours: [{ value: null, disabled: this.isReadonly }],
+      extraHours: [{ value: null, disabled: this.isReadonly }],
+      comment: [{ value: null, disabled: this.isReadonly }],
     });
   }
 
@@ -155,14 +222,35 @@ export class HoursReportEditComponent implements OnInit {
     const totalHours = this.getTotalHours(hr);
 
     return this.fb.group({
-      date: [hr.date, Validators.required],
-      timeStart: [hr.timeStart, [Validators.required]],
-      timeEnd: [hr.timeEnd, [Validators.required]],
-      dayReportType: [hr.dayReportType || null],
-      totalHours: [totalHours],
-      usualHours: [this.getUsualHours(hr, totalHours)],
-      extraHours: [this.getExtraHours(hr, totalHours)],
-      comment: [hr.comment || null],
+      date: [
+        { value: hr.date, disabled: this.isReadonly },
+        Validators.required,
+      ],
+      timeStart: [
+        { value: hr.timeStart, disabled: this.isReadonly },
+        [Validators.required],
+      ],
+      timeEnd: [
+        { value: hr.timeEnd, disabled: this.isReadonly },
+        [Validators.required],
+      ],
+      dayReportType: [
+        { value: hr.dayReportType || null, disabled: this.isReadonly },
+      ],
+      totalHours: [{ value: totalHours, disabled: this.isReadonly }],
+      usualHours: [
+        {
+          value: this.getUsualHours(hr, totalHours),
+          disabled: this.isReadonly,
+        },
+      ],
+      extraHours: [
+        {
+          value: this.getExtraHours(hr, totalHours),
+          disabled: this.isReadonly,
+        },
+      ],
+      comment: [{ value: hr.comment || null, disabled: this.isReadonly }],
     });
   }
 
@@ -177,9 +265,12 @@ export class HoursReportEditComponent implements OnInit {
 
   exportToExcel(): void {
     /*name of the excel-file which will be downloaded. */
-
-    const fileName = 'ExcelSheet.xlsx';
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.getHrsArray(true));
+    const { firstName, lastName } = this.currentEmployee;
+    const fileName = `${firstName} ${lastName} נוכחות.xlsx`;
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(
+      this.getHrsArray(true),
+      { header: Object.values(this.hebrewTitles).reverse() }
+    );
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
 
@@ -197,6 +288,7 @@ export class HoursReportEditComponent implements OnInit {
     const diff = moment
       .utc(moment(end, 'HH:mm').diff(moment(start, 'HH:mm')))
       .format('HH:mm');
+
     return diff;
   }
 
@@ -240,6 +332,70 @@ export class HoursReportEditComponent implements OnInit {
     return '00:00';
   }
 
+  getMonthlyHrs(key: string) {
+    let res = moment.duration('00:00');
+    this.hRsList.controls.forEach((ctrl) => {
+      res = res.add(ctrl.value[key]);
+    });
+    var hours = Math.floor(res.asHours());
+    var mins = Math.floor(res.asMinutes()) - hours * 60;
+    let _hours = hours.toString();
+    let _mins = mins.toString();
+    _hours = _hours.length < 2 ? 0 + _hours : _hours;
+    _mins = _mins.length < 2 ? 0 + _mins : _mins;
+    return (hours + mins / 60).toFixed(2);
+  }
+
+  getRequiredMonthlyHours() {
+    if (!this.currentEmployee?.hoursPerDay) return;
+    const endDayOfMonth = +this.getMonthlyWorkDaysOfCurrentSearchMonth();
+    const HoursPerDay = +this.currentEmployee.hoursPerDay
+      .toString()
+      .split(':')[0];
+    const minsPerDay = +this.currentEmployee.hoursPerDay
+      .toString()
+      .split(':')[1];
+    const monthlyUsualHours =
+      endDayOfMonth * HoursPerDay + endDayOfMonth * (minsPerDay / 60);
+    return monthlyUsualHours;
+  }
+
+  getMonthlyWorkDaysOfCurrentSearchMonth() {
+    const endDateOfMonth = moment(this.monthYearSearch, 'M/YYYY').endOf(
+      'month'
+    );
+    return (
+      +endDateOfMonth.format('D') -
+      this.getAmountOfWeekDaysInMonth(endDateOfMonth, 6)
+    );
+  }
+
+  getAmountOfWeekDaysInMonth(date, weekday) {
+    date.date(1);
+    var dif = ((7 + (weekday - date.weekday())) % 7) + 1;
+    console.log(
+      'weekday: ' +
+        weekday +
+        ', FirstOfMonth: ' +
+        date.weekday() +
+        ', dif: ' +
+        dif
+    );
+    return Math.floor((date.daysInMonth() - dif) / 7) + 1;
+  }
+
+  getMonthlyWorkedDays() {
+    let daysObj = {};
+    this.hrs.forEach((hr) => {
+      let _date = moment(hr.date).format('DD/MM/YYYY');
+      if (daysObj[_date]) {
+      } else {
+        daysObj[_date] = true;
+      }
+    });
+    return Object.keys(daysObj).length;
+  }
+
   addHr() {
     this.hRService.addHR(this.newHr).subscribe((res) => {
       alert('added');
@@ -248,9 +404,11 @@ export class HoursReportEditComponent implements OnInit {
 
   submitForm() {
     if (!this.newForm.valid) return;
-    const empNumber = this.route.snapshot.paramMap.get('empId');
     this.hRService
-      .updateHRsForEmployee(empNumber, this.getHrsArray())
+      .updateHRsForEmployee(
+        this.currentEmployee.employeeNumber,
+        this.getHrsArray()
+      )
       .subscribe(() => this.openSavedDialog());
   }
 
@@ -281,6 +439,16 @@ export class HoursReportEditComponent implements OnInit {
     this.openDialog(true);
   }
 
+  toggleEdit(enableEdit) {
+    this.hRsList.controls.forEach((ctrl) => {
+      for (const field in ctrl.value) {
+        enableEdit ? ctrl.get(field).enable() : ctrl.get(field).disable();
+      }
+    });
+
+    this.isReadonly = !enableEdit;
+  }
+
   openDialog(isOK): void {
     const dialogRef = this.dialog.open(AddReportTypeComponent, {
       width: '350px',
@@ -309,5 +477,23 @@ export class HoursReportEditComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {});
+  }
+
+  printPage() {
+    if (this.searchMode) {
+      const search: any = {};
+      search.employeeNumber = this._currentSearch.employeeNumber;
+      search.month = this._currentSearch.month;
+      search.year = this._currentSearch.year;
+      this.printService.printDocument(
+        'search-print',
+        Object.values(search).join()
+      );
+    } else {
+      this.printService.printDocument(
+        'report-print',
+        this.currentEmployee.employeeNumber
+      );
+    }
   }
 }

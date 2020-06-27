@@ -28,6 +28,7 @@ import { LoginComponent } from './components/login/login.component';
 import { MangerLoginComponent } from './components/login/pages/manger-login/manger-login.component';
 import { EmployeeLoginComponent } from './components/login/pages/employee-login/employee-login.component';
 import { SearchComponent } from './components/search/search.component';
+import { PrintLayoutComponent } from './components/print-layout/print-layout.component';
 
 @NgModule({
   declarations: [
@@ -42,6 +43,7 @@ import { SearchComponent } from './components/search/search.component';
     MangerLoginComponent,
     EmployeeLoginComponent,
     SearchComponent,
+    PrintLayoutComponent,
   ],
   imports: [
     BrowserModule,

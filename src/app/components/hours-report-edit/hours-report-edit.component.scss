@@ -11,3 +11,31 @@
     // text-align: center;
   }
 }
+
+.total-field {
+  background: #faf3fe;
+  height: 50px;
+  margin-top: -16px;
+  border-radius: 3px;
+  line-height: 5;
+  text-align: center;
+  width: 100%;
+}
+
+.total-hrs {
+  background: rgba(209, 155, 243, 0.12) !important;
+  border-top: 1px solid purple;
+  border-bottom: 1px solid purple;
+  // border-radius: 6px;
+  padding: 9px 0;
+  margin: 30px 0;
+  div {
+    margin-left: 15px;
+    margin-right: 10px;
+    font-size: 15px;
+  }
+}
+
+.small-font {
+  font-size: 12px;
+}

@@ -1,13 +1,43 @@
 <form [formGroup]="newForm" #myForm="ngForm" novalidate (submit)="submitForm()">
-  <mat-card class="small-card">
+  <mat-card class="small-card overflow-card">
     <mat-card-content>
       <ng-container *ngIf="hRsList?.controls.length">
         <mat-card-actions>
-          <button mat-raised-button color="primary" type="submit">
+          <button
+            mat-raised-button
+            color="primary"
+            type="button"
+            (click)="toggleEdit(true)"
+            *ngIf="isReadonly"
+          >
+            <mat-icon>edit</mat-icon>
+            עריכה
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            type="button"
+            (click)="toggleEdit(false)"
+            *ngIf="!isReadonly"
+          >
+            <mat-icon>remove_red_eye</mat-icon>
+            צפיה בלבד
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            *ngIf="!isReadonly"
+          >
             <mat-icon>save</mat-icon>
             שמירה
           </button>
-          <button mat-stroked-button color="primary" type="button">
+          <button
+            mat-stroked-button
+            color="primary"
+            (click)="printPage()"
+            type="button"
+          >
             <mat-icon>print</mat-icon>
             הדפסה
           </button>
@@ -21,7 +51,45 @@
             יצוא לExcel
           </button>
         </mat-card-actions>
-        <div class="tbl-grid header">
+      </ng-container>
+
+      <div class="total-hrs d-flex" *ngIf="searchMode">
+        <div>
+          <span
+            ><span class="purple bold">סך שעות:</span>
+            {{ getMonthlyHrs("totalHours") }}</span
+          >
+        </div>
+        <div>
+          <span
+            ><span class="purple bold">רגילות:</span>
+            {{ getMonthlyHrs("usualHours") }}
+            <span class="small-font">
+              מתוך
+            </span>
+            {{ getRequiredMonthlyHours() }}</span
+          >
+        </div>
+        <div>
+          <span
+            ><span class="purple bold">נוספות:</span>
+            {{ getMonthlyHrs("extraHours") }}</span
+          >
+        </div>
+        <div>
+          <span
+            ><span class="purple bold">ימי עבודה:</span>
+            {{ getMonthlyWorkedDays() }}
+            <span class="small-font">
+              מתוך
+            </span>
+            {{ getMonthlyWorkDaysOfCurrentSearchMonth() }}</span
+          >
+        </div>
+      </div>
+
+      <div>
+        <div class="tbl-grid header" *ngIf="hRsList?.controls.length">
           <span>תאריך</span>
           <span>שעת התחלה</span>
           <span>שעת סיום</span>
@@ -30,81 +98,108 @@
           <span>רגילות</span>
           <span>נוספות</span>
           <span>הערות</span>
-        </div></ng-container
-      >
-      <div
-        id="tbl_content"
-        formArrayName="hRsList"
-        *ngFor="let item of hRsList?.controls; let i = index"
-      >
-        <div [formGroupName]="i">
-          <button
-            mat-mini-fab
-            class="remove-report-btn"
-            color="primary"
-            (click)="removeReportItem(i)"
-            aria-label="מחק"
-            type="button"
-          >
-            <mat-icon>remove_box</mat-icon>
-          </button>
-          <div class="tbl-grid content">
-            <mat-form-field appearance="fill" class="tbl-field">
-              <mat-label>בחר תאריך</mat-label>
-              <input
-                matInput
-                formControlName="date"
-                disabled
-                [min]="minDate"
-                [max]="maxDate"
-                [matDatepicker]="picker"
-              />
-              <mat-datepicker-toggle
-                matSuffix
-                [for]="picker"
-              ></mat-datepicker-toggle>
-              <mat-datepicker #picker disabled="false"></mat-datepicker>
-              <mat-error *ngIf="item.get('date').hasError('required')">
-                שדה חובה
-              </mat-error>
-            </mat-form-field>
-            <mat-form-field appearance="fill" class="tbl-field">
-              <input matInput type="time" formControlName="timeStart" />
-              <mat-error *ngIf="item.get('timeStart').hasError('required')">
-                שדה חובה
-              </mat-error>
-            </mat-form-field>
-            <mat-form-field appearance="fill" class="tbl-field">
-              <input matInput type="time" formControlName="timeEnd" />
-              <mat-error *ngIf="item.get('timeEnd').hasError('required')">
-                שדה חובה
-              </mat-error>
-            </mat-form-field>
-            <mat-form-field color="primary" appearance="fill" class="tbl-field">
-              <mat-select color="primary" formControlName="dayReportType">
-                <mat-option color="primary" *ngIf="isManager"
-                  ><div (click)="addSelction()">
-                    הוסף סוג דיווח
-                  </div></mat-option
+        </div>
+
+        <div
+          id="tbl_content"
+          formArrayName="hRsList"
+          *ngFor="let item of hRsList?.controls; let i = index"
+        >
+          <div [formGroupName]="i">
+            <button
+              *ngIf="!isReadonly && !searchMode"
+              mat-mini-fab
+              class="remove-report-btn"
+              color="primary"
+              (click)="removeReportItem(i)"
+              aria-label="מחק"
+              type="button"
+            >
+              <mat-icon>remove_box</mat-icon>
+            </button>
+            <div class="tbl-grid content">
+              <mat-form-field
+                appearance="fill"
+                (click)="isReadonly ? '' : picker.open()"
+                class="tbl-field"
+                [class.pointer]="!isReadonly"
+              >
+                <input
+                  matInput
+                  placeholder="בחר תאריך"
+                  formControlName="date"
+                  disabled
+                  [min]="minDate"
+                  [max]="maxDate"
+                  [matDatepicker]="picker"
+                />
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="picker"
+                ></mat-datepicker-toggle>
+                <mat-datepicker
+                  #picker
+                  [disabled]="isReadonly"
+                ></mat-datepicker>
+                <mat-error *ngIf="item.get('date').hasError('required')">
+                  שדה חובה
+                </mat-error>
+              </mat-form-field>
+              <mat-form-field appearance="fill" class="tbl-field">
+                <input matInput type="time" formControlName="timeStart" />
+                <mat-error *ngIf="item.get('timeStart').hasError('required')">
+                  שדה חובה
+                </mat-error>
+              </mat-form-field>
+              <mat-form-field appearance="fill" class="tbl-field">
+                <input matInput type="time" formControlName="timeEnd" />
+                <mat-error *ngIf="item.get('timeEnd').hasError('required')">
+                  שדה חובה
+                </mat-error>
+              </mat-form-field>
+              <mat-form-field
+                color="primary"
+                appearance="fill"
+                class="tbl-field"
+              >
+                <mat-select color="primary" formControlName="dayReportType">
+                  <mat-option color="primary" *ngIf="isManager"
+                    ><div (click)="addSelction()">
+                      <b> + הוסף סוג דיווח</b>
+                    </div></mat-option
+                  >
+                  <mat-option *ngFor="let type of hRsTypes" [value]="type.Id">{{
+                    type.value
+                  }}</mat-option>
+                </mat-select>
+                <mat-error
+                  *ngIf="item.get('dayReportType').hasError('required')"
                 >
-                <mat-option *ngFor="let type of hRsTypes" [value]="type.Id">{{
-                  type.value
-                }}</mat-option>
-              </mat-select>
-              <mat-error *ngIf="item.get('dayReportType').hasError('required')">
-                שדה חובה
-              </mat-error>
-            </mat-form-field>
-            <span class="tbl-field">{{ item.value.totalHours }}</span>
-            <span class="tbl-field">{{ item.value.usualHours }}</span>
-            <span class="tbl-field">{{ item.value.extraHours }}</span>
-            <mat-form-field appearance="fill" class="tbl-field">
-              <textarea matInput rows="1" formControlName="comment"></textarea>
-            </mat-form-field>
+                  שדה חובה
+                </mat-error>
+              </mat-form-field>
+              <span class="tbl-field total-field">{{
+                item.value.totalHours
+              }}</span>
+              <span class="tbl-field total-field">{{
+                item.value.usualHours
+              }}</span>
+              <span class="tbl-field total-field">{{
+                item.value.extraHours
+              }}</span>
+              <mat-form-field appearance="fill" class="tbl-field">
+                <textarea
+                  matInput
+                  rows="1"
+                  formControlName="comment"
+                ></textarea>
+              </mat-form-field>
+            </div>
           </div>
         </div>
       </div>
       <button
+        *ngIf="!isReadonly && !searchMode"
         mat-stroked-button
         (click)="createNewReportItem()"
         color="primary"
@@ -113,6 +208,9 @@
         <mat-icon>add_box</mat-icon>
         הוספת דיווח
       </button>
+      <h3 *ngIf="searchMode && !hRsList.controls?.length">
+        לא קיים דו"ח נוכחות לחודש זה
+      </h3>
     </mat-card-content>
   </mat-card>
 </form>

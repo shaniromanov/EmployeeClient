@@ -35,4 +35,14 @@ export class HoursReportService {
       `https://localhost:44319/api/GetHRsForEmployee/${empNumber}`
     );
   }
+
+  getMonthlyHrsForEmployee(search: {
+    employeeNumber: number;
+    year: string;
+    month: string;
+  }) {
+    return this.http.get(
+      `https://localhost:44319/api/GetMonthlyHrsForEmployee/${search.employeeNumber}/year/${search.year}/month/${search.month}`
+    );
+  }
 }

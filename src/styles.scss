@@ -1,5 +1,5 @@
-@import "~material-design-icons/iconfont/material-icons.css";
-@import "~typeface-roboto/index.css";
+// @import "~material-design-icons/iconfont/material-icons.css";
+// @import "~typeface-roboto/index.css";
 // Custom Theming for Angular Material
 // For more information: https://material.angular.io/guide/theming
 @import "~@angular/material/theming";
@@ -136,8 +136,53 @@ button:active {
   min-width: 100% !important;
 }
 
+.purple {
+  color: purple;
+}
+
 .bold {
-  font-weight: bold !important;
+  font-weight: bold;
+}
+
+input:disabled,
+.mat-select-disabled,
+textarea:disabled {
+  color: rgba(0, 0, 0, 0.87) !important;
+  span {
+    color: rgba(0, 0, 0, 0.87) !important;
+  }
+}
+.mat-form-field-disabled {
+  background: white !important;
+}
+
+.pointer {
+  cursor: pointer;
+  input,
+  div {
+    cursor: pointer;
+  }
+}
+
+.overflow-card {
+  max-width: 100% !important;
+  overflow-y: auto;
+}
+
+.error-text {
+  color: red;
+}
+
+@media print {
+  .isPrinting > * {
+    display: none;
+  }
+  .isPrinting app-print-layout {
+    display: block;
+  }
+  @page {
+    size: landscape;
+  }
 }
 
 @media only screen and (min-width: 960px) {

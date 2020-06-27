@@ -17,6 +17,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, NativeDateModule } from '@angular/material/core';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 @NgModule({
   declarations: [],
@@ -40,6 +41,7 @@ import { MatNativeDateModule, NativeDateModule } from '@angular/material/core';
     MatDatepickerModule,
     MatNativeDateModule,
     NativeDateModule,
+    MatAutocompleteModule,
   ],
   exports: [
     MatTableModule,
@@ -60,6 +62,7 @@ import { MatNativeDateModule, NativeDateModule } from '@angular/material/core';
     MatDatepickerModule,
     MatNativeDateModule,
     NativeDateModule,
+    MatAutocompleteModule,
   ],
 })
 export class MaterialSharedModule {}

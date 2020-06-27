@@ -1,5 +1,6 @@
-<!-- <app-employees-table></app-employees-table> -->
-<app-navbar><router-outlet></router-outlet></app-navbar>
-<!-- <app-address-form></app-address-form> -->
-<!-- <app-dashboards></app-dashboards> -->
-<!--  -->
+<div [class.isPrinting]="printService.isPrinting">
+  <app-navbar>
+    <router-outlet></router-outlet>
+  </app-navbar>
+</div>
+<router-outlet name="print"></router-outlet>

@@ -5,6 +5,7 @@ import { map, shareReplay } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SignInUpService } from 'src/app/services/sign-in-up.service';
 import { Employee } from 'src/app/models/employee';
+import { EmployeeService } from 'src/app/services/employee.service';
 
 @Component({
   selector: 'app-navbar',
@@ -80,11 +81,13 @@ export class NavbarComponent implements OnInit {
       map((result) => result.matches),
       shareReplay()
     );
+  currntEmpHRs: Employee;
 
   constructor(
     private breakpointObserver: BreakpointObserver,
     private router: Router,
-    private signInUpService: SignInUpService
+    private signInUpService: SignInUpService,
+    private empService: EmployeeService
   ) {}
 
   ngOnInit(): void {
@@ -95,6 +98,9 @@ export class NavbarComponent implements OnInit {
     this.subsribeToUrlNavigation();
     this.subscribeToManagerLogIn();
     this.subscribeToEmployeeLogIn();
+    this.empService.currentEmployeeHRs.subscribe(
+      (emp) => (this.currntEmpHRs = emp)
+    );
   }
 
   subsribeToUrlNavigation() {
@@ -142,5 +148,10 @@ export class NavbarComponent implements OnInit {
     } else {
       this.signInUpService.setEmployeeLogin(false, null);
     }
+  }
+
+  fullName(emp: Employee) {
+    if (!emp) return;
+    return emp.firstName + ' ' + emp.lastName;
   }
 }

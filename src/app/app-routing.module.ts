@@ -7,6 +7,7 @@ import { LoginComponent } from './components/login/login.component';
 import { MangerLoginComponent } from './components/login/pages/manger-login/manger-login.component';
 import { EmployeeLoginComponent } from './components/login/pages/employee-login/employee-login.component';
 import { SearchComponent } from './components/search/search.component';
+import { PrintLayoutComponent } from './components/print-layout/print-layout.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'login-main', pathMatch: 'full' },
@@ -18,6 +19,18 @@ const routes: Routes = [
   { path: 'emp-list', component: EmployeesTableComponent },
   { path: 'report-edit/:empId', component: HoursReportEditComponent },
   { path: 'search', component: SearchComponent },
+  {
+    path: 'print',
+    outlet: 'print',
+    component: PrintLayoutComponent,
+    children: [
+      { path: 'report-print/:empId', component: HoursReportEditComponent },
+      {
+        path: 'search-print/:search',
+        component: SearchComponent,
+      },
+    ],
+  },
 ];
 
 @NgModule({

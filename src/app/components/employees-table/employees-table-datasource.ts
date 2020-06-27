@@ -62,7 +62,6 @@ export class EmployeesTableDataSource extends DataSource<Employee> {
     const copiedData = this.data.slice();
     copiedData.push(...newData);
     this.data = copiedData;
-    console.log(this.data);
   }
 
   /**

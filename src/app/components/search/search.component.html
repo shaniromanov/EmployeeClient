@@ -1,3 +1,76 @@
 <mat-card>
-  חיפוש לא קיים עדיין
+  <ng-container *ngIf="!printMode">
+    <div class="d-flex justify-content-around search-container">
+      <div>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>שם עובד</mat-label>
+          <input
+            type="text"
+            matInput
+            [formControl]="searchControl"
+            [matAutocomplete]="auto"
+          />
+        </mat-form-field>
+        <mat-autocomplete
+          #auto="matAutocomplete"
+          [displayWith]="display.bind(this)"
+        >
+          <mat-option
+            *ngFor="let option of filteredEmployees | async"
+            [value]="option"
+            (onSelectionChange)="onSearchChanged($event)"
+            >{{ option.text }}</mat-option
+          >
+        </mat-autocomplete>
+      </div>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>שנה</mat-label>
+        <mat-select [(ngModel)]="search.year">
+          <mat-option *ngFor="let year of years" [value]="year">{{
+            year
+          }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>חודש</mat-label>
+        <mat-select [(ngModel)]="search.month">
+          <mat-option *ngFor="let month of monthes" [value]="month.value">{{
+            month.text
+          }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-fab (click)="onSearch()" color="primary">
+        <mat-icon>search</mat-icon>
+      </button>
+    </div>
+
+    <p
+      class="error-text"
+      *ngIf="!search.employeeNumber || !search.month || !search.year"
+    >
+      * יש למלא את כל שדות החיפוש
+    </p>
+  </ng-container>
+
+  <ng-container *ngIf="printMode">
+    <div class="details d-flex">
+      <div>
+        <span
+          ><span class="purple bold">דו"ח עבור </span>
+          {{ currentSearch?.month }}/{{ currentSearch?.year }}</span
+        >
+      </div>
+    </div>
+  </ng-container>
+
+  <div class="results" *ngIf="monthlyHRs">
+    <app-hours-report-edit
+      [searchMode]="true"
+      [monthlyHRs]="monthlyHRs"
+      [currentSearch]="currentSearch"
+    ></app-hours-report-edit>
+  </div>
 </mat-card>

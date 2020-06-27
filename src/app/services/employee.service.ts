@@ -1,11 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Employee } from '../models/employee';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class EmployeeService {
+  currentEmployeeHRs = new BehaviorSubject(null);
+
   constructor(private http: HttpClient) {}
 
   uploadImage(formData: FormData) {
