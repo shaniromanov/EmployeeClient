@@ -10,6 +10,6 @@ export class Employee {
   numUploadedProfiles: number;
   phone: string;
   email: string;
-  hoursPerDay: Time;
-  maximumExtraHours: Time;
+  hoursPerDay: any;
+  maximumExtraHours: any;
 }

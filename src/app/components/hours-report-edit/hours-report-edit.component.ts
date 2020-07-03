@@ -371,14 +371,14 @@ export class HoursReportEditComponent implements OnInit {
     return '00:00';
   }
 
-  getMonthlyTotalHrs(key: string) {
+  getMonthlyTotalHrs() {
     let res = moment.duration('00:00');
     this.hRsList.controls.forEach((ctrl) => {
-      res = res.add(ctrl.value[key]);
+      res = res.add(ctrl.value.totalHours);
     });
     var hours = Math.floor(res.asHours());
     var mins = Math.floor(res.asMinutes()) - hours * 60;
-    return (hours + mins / 60).toFixed(2);
+    return Number((hours + mins / 60).toFixed(2));
   }
 
   getMonthlyHrs(key: string) {
@@ -390,7 +390,7 @@ export class HoursReportEditComponent implements OnInit {
     });
     var hours = Math.floor(res.asHours());
     var mins = Math.floor(res.asMinutes()) - hours * 60;
-    return (hours + mins / 60).toFixed(2);
+    return Number((hours + mins / 60).toFixed(2));
   }
 
   getTimeFromDuration(duration: moment.Duration) {
@@ -430,14 +430,6 @@ export class HoursReportEditComponent implements OnInit {
   getAmountOfWeekDaysInMonth(date, weekday) {
     date.date(1);
     var dif = ((7 + (weekday - date.weekday())) % 7) + 1;
-    console.log(
-      'weekday: ' +
-        weekday +
-        ', FirstOfMonth: ' +
-        date.weekday() +
-        ', dif: ' +
-        dif
-    );
     return Math.floor((date.daysInMonth() - dif) / 7) + 1;
   }
 

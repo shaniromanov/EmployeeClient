@@ -56,8 +56,8 @@
       <div class="total-hrs d-flex" *ngIf="searchMode">
         <div>
           <span
-            ><span class="purple bold">סך שעות:</span
-            >{{ getMonthlyTotalHrs("totalHours") }}</span
+            ><span class="purple bold">סך שעות: </span
+            >{{ getMonthlyTotalHrs() }}</span
           >
         </div>
         <div>
@@ -89,13 +89,13 @@
         <div>
           <span
             ><span class="purple bold">שעות עבודה ביום:</span>
-            {{ currentEmployee?.hoursPerDay }}
+            {{ currentEmployee?.hoursPerDay | slice: 0:5 }}
           </span>
         </div>
         <div>
           <span
             ><span class="purple bold">מקסימום שעות עבודה ליום:</span>
-            {{ currentEmployee?.maximumExtraHours }}
+            {{ currentEmployee?.maximumExtraHours | slice: 0:5 }}
           </span>
         </div>
       </div>
