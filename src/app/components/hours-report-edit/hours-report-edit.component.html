@@ -56,8 +56,8 @@
       <div class="total-hrs d-flex" *ngIf="searchMode">
         <div>
           <span
-            ><span class="purple bold">סך שעות:</span>
-            {{ getMonthlyHrs("totalHours") }}</span
+            ><span class="purple bold">סך שעות:</span
+            >{{ getMonthlyTotalHrs("totalHours") }}</span
           >
         </div>
         <div>
@@ -86,6 +86,18 @@
             {{ getMonthlyWorkDaysOfCurrentSearchMonth() }}</span
           >
         </div>
+        <div>
+          <span
+            ><span class="purple bold">שעות עבודה ביום:</span>
+            {{ currentEmployee?.hoursPerDay }}
+          </span>
+        </div>
+        <div>
+          <span
+            ><span class="purple bold">מקסימום שעות עבודה ליום:</span>
+            {{ currentEmployee?.maximumExtraHours }}
+          </span>
+        </div>
       </div>
 
       <div>
@@ -111,7 +123,7 @@
               mat-mini-fab
               class="remove-report-btn"
               color="primary"
-              (click)="removeReportItem(i)"
+              (click)="removeReportItem(i, item.value.date)"
               aria-label="מחק"
               type="button"
             >

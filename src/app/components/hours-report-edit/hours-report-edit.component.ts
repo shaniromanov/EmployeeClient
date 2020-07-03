@@ -154,12 +154,20 @@ export class HoursReportEditComponent implements OnInit {
     });
   }
 
-  onCtrlValueChanges(ctrl) {
-    ctrl.valueChanges.subscribe((value) => {
+  onCtrlValueChanges(ctrlChanged) {
+    ctrlChanged.valueChanges.subscribe((value) => {
       if (!value.timeStart && !value.timeEnd) return;
-      this.updateTotalHours(ctrl, value);
-      this.updateUsualHours(ctrl, value);
-      this.updateExtraHours(ctrl, value);
+
+      this.updateTotalHours(ctrlChanged, value);
+      this.updateSameDatesCtrls(ctrlChanged.value.date);
+    });
+  }
+
+  updateSameDatesCtrls(date) {
+    this.hRsList.controls.forEach((ctrl) => {
+      if (this._date(date) !== this._date(ctrl.value.date)) return;
+      this.updateUsualHours(ctrl, ctrl.value);
+      this.updateExtraHours(ctrl, ctrl.value);
     });
   }
 
@@ -259,8 +267,9 @@ export class HoursReportEditComponent implements OnInit {
     this.hRsList.push(itemFromReport);
   }
 
-  removeReportItem(index): void {
+  removeReportItem(index, date): void {
     this.hRsList.removeAt(index);
+    this.updateSameDatesCtrls(date);
   }
 
   exportToExcel(): void {
@@ -294,11 +303,19 @@ export class HoursReportEditComponent implements OnInit {
 
   getUsualHours(item, hrTotalsHours?) {
     if (!item) return;
-    const totalHours = item.totalHours || hrTotalsHours;
-    const hoursPerDay = this.currentEmployee.hoursPerDay;
+    let totalHours = item.totalHours || hrTotalsHours;
+    let sameDates = this.getSameDates(item.date, hrTotalsHours ? true : false);
+    if (sameDates.length > 1) {
+      totalHours = moment.duration('00:00');
+      sameDates.forEach((item) => {
+        totalHours.add(this.getTotalHours(item));
+      });
+      totalHours = this.getTimeFromDuration(totalHours);
+    }
     if (!totalHours) {
       return '00:00';
     }
+    const hoursPerDay = this.currentEmployee.hoursPerDay;
     const diff = moment(totalHours, 'HH:mm').diff(moment(hoursPerDay, 'HH:mm'));
     if (diff > 0) {
       return moment(hoursPerDay, 'HH:mm:ss').format('HH:mm');
@@ -306,9 +323,31 @@ export class HoursReportEditComponent implements OnInit {
     return totalHours;
   }
 
+  getSameDates(date, isFromOriginal?) {
+    const list = isFromOriginal ? this.hrs : this.hRsList.value;
+    return list.filter((item) => this._date(item.date) === this._date(date));
+  }
+
+  _date(date) {
+    if (moment.isMoment(date)) return date.format('DD/MM/YYYY');
+    return moment(date).format('DD/MM/YYYY');
+  }
+
+  _time(time) {
+    return moment(time).format('HH:mm');
+  }
+
   getExtraHours(item, hrTotalsHours?) {
     if (!item) return;
-    const totalHours = item.totalHours || hrTotalsHours;
+    let totalHours = item.totalHours || hrTotalsHours;
+    let sameDates = this.getSameDates(item.date, hrTotalsHours ? true : false);
+    if (sameDates.length > 1) {
+      totalHours = moment.duration('00:00');
+      sameDates.forEach((item) => {
+        totalHours.add(this.getTotalHours(item));
+      });
+      totalHours = this.getTimeFromDuration(totalHours);
+    }
     const hoursPerDay = this.currentEmployee.hoursPerDay;
     if (!totalHours) {
       return '00:00';
@@ -332,18 +371,36 @@ export class HoursReportEditComponent implements OnInit {
     return '00:00';
   }
 
-  getMonthlyHrs(key: string) {
+  getMonthlyTotalHrs(key: string) {
     let res = moment.duration('00:00');
     this.hRsList.controls.forEach((ctrl) => {
       res = res.add(ctrl.value[key]);
     });
     var hours = Math.floor(res.asHours());
     var mins = Math.floor(res.asMinutes()) - hours * 60;
+    return (hours + mins / 60).toFixed(2);
+  }
+
+  getMonthlyHrs(key: string) {
+    let res = moment.duration('00:00');
+    let daysObjHrs = this.getDayesObject();
+
+    Object.keys(daysObjHrs).forEach((day) => {
+      res = res.add(daysObjHrs[day][0][key]);
+    });
+    var hours = Math.floor(res.asHours());
+    var mins = Math.floor(res.asMinutes()) - hours * 60;
+    return (hours + mins / 60).toFixed(2);
+  }
+
+  getTimeFromDuration(duration: moment.Duration) {
+    var hours = Math.floor(duration.asHours());
+    var mins = Math.floor(duration.asMinutes()) - hours * 60;
     let _hours = hours.toString();
     let _mins = mins.toString();
     _hours = _hours.length < 2 ? 0 + _hours : _hours;
     _mins = _mins.length < 2 ? 0 + _mins : _mins;
-    return (hours + mins / 60).toFixed(2);
+    return `${_hours}:${_mins}`;
   }
 
   getRequiredMonthlyHours() {
@@ -386,14 +443,27 @@ export class HoursReportEditComponent implements OnInit {
 
   getMonthlyWorkedDays() {
     let daysObj = {};
-    this.hrs.forEach((hr) => {
-      let _date = moment(hr.date).format('DD/MM/YYYY');
+    this.hRsList.value.forEach((hr) => {
+      let _date = this._date(hr.date);
       if (daysObj[_date]) {
       } else {
         daysObj[_date] = true;
       }
     });
     return Object.keys(daysObj).length;
+  }
+
+  getDayesObject() {
+    let daysObj = {};
+    this.hRsList.value.forEach((hr) => {
+      let _date = this._date(hr.date);
+      if (daysObj[_date]) {
+        daysObj[_date].push(hr);
+      } else {
+        daysObj[_date] = [];
+      }
+    });
+    return daysObj;
   }
 
   addHr() {
