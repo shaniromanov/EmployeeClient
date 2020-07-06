@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HoursReportService } from 'src/app/services/hours-report.service';
 import { EmployeeService } from 'src/app/services/employee.service';
 import { Employee } from 'src/app/models/employee';
-import { FormControl } from '@angular/forms';
+import { FormControl, FormGroup, FormBuilder } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { startWith, map } from 'rxjs/operators';
 import { HoursReport } from 'src/app/models/hoursReport';
@@ -16,7 +16,6 @@ import { ActivatedRoute } from '@angular/router';
   styleUrls: ['./search.component.scss'],
 })
 export class SearchComponent implements OnInit {
-  search = { employeeNumber: null, month: '', year: '' };
   currentSearch: { employeeNumber: number; month: string; year: string };
   years = [];
   monthes = [
@@ -33,7 +32,11 @@ export class SearchComponent implements OnInit {
     { value: 11, text: 'נובמבר' },
     { value: 12, text: 'דצמבר' },
   ];
-
+  searchForm: FormGroup = this.fb.group({
+    employeeNumber: '',
+    month: '',
+    year: '',
+  });
   searchControl = new FormControl();
   employees: Employee[] = [];
   filteredEmployees: Observable<{ value: number; text: string }[]>;
@@ -44,18 +47,19 @@ export class SearchComponent implements OnInit {
     private hoursReportService: HoursReportService,
     private empService: EmployeeService,
     private printService: PrintService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private fb: FormBuilder
   ) {}
 
   ngOnInit(): void {
     if (this.route.snapshot.routeConfig.path.includes('search-print')) {
       this.printMode = true;
       const searchParams = this.route.snapshot.paramMap.get('search');
-      this.currentSearch = {
+      this.searchForm.setValue({
         employeeNumber: +searchParams.split(',')[0],
         year: searchParams.split(',')[2],
         month: searchParams.split(',')[1],
-      };
+      });
       this.onSearch();
       return;
     }
@@ -94,13 +98,12 @@ export class SearchComponent implements OnInit {
   }
 
   onSearch() {
-    const search = this.currentSearch || this.search;
-    if (!search.employeeNumber || !search.month || !search.year) return;
+    if (!this.searchForm.valid) return;
     this.hoursReportService
-      .getMonthlyHrsForEmployee(search)
+      .getMonthlyHrsForEmployee(this.searchForm.value)
       .subscribe((res: HoursReport[]) => {
         this.monthlyHRs = res;
-        this.currentSearch = { ...search };
+        this.currentSearch = { ...this.searchForm.value };
       });
   }
 
@@ -113,6 +116,6 @@ export class SearchComponent implements OnInit {
   }
 
   onSearchChanged(event: MatOptionSelectionChange) {
-    this.search.employeeNumber = event.source.value.value;
+    this.searchForm.get('employeeNumber').setValue(event.source.value.value);
   }
 }

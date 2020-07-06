@@ -123,7 +123,7 @@
               mat-mini-fab
               class="remove-report-btn"
               color="primary"
-              (click)="removeReportItem(i, item.value.date)"
+              (click)="removeReportItem(i, item.get('date').value)"
               aria-label="מחק"
               type="button"
             >
@@ -140,7 +140,6 @@
                   matInput
                   placeholder="בחר תאריך"
                   formControlName="date"
-                  disabled
                   [min]="minDate"
                   [max]="maxDate"
                   [matDatepicker]="picker"
@@ -191,13 +190,13 @@
                 </mat-error>
               </mat-form-field>
               <span class="tbl-field total-field">{{
-                item.value.totalHours
+                item.get("totalHours").value
               }}</span>
               <span class="tbl-field total-field">{{
-                item.value.usualHours
+                item.get("usualHours").value
               }}</span>
               <span class="tbl-field total-field">{{
-                item.value.extraHours
+                item.get("extraHours").value
               }}</span>
               <mat-form-field appearance="fill" class="tbl-field">
                 <textarea

@@ -15,6 +15,7 @@ import { SignInUpService } from 'src/app/services/sign-in-up.service';
 import * as _ from 'lodash';
 import { PrintService } from 'src/app/services/print.service';
 import { utils } from 'protractor';
+import { startWith, pairwise } from 'rxjs/operators';
 
 @Component({
   selector: 'app-hours-report-edit',
@@ -35,6 +36,7 @@ export class HoursReportEditComponent implements OnInit {
   currentEmployee: Employee = new Employee();
   isManager: boolean;
   hebrewTitles = {
+    id: 'מספר עובד',
     date: 'תאריך:',
     timeStart: 'שעת התחלה:',
     timeEnd: 'שעת סיום:',
@@ -66,6 +68,13 @@ export class HoursReportEditComponent implements OnInit {
       .getEmployeeById(search.employeeNumber)
       .subscribe((emp: Employee) => {
         this.currentEmployee = emp;
+        if (this.hRsList.controls.length > 0) {
+          this.hRsList = this.fb.array([]);
+        }
+        this.hrs.forEach((hr) => {
+          this.addReportItem(hr);
+        });
+        this.subscribeTimeChanges();
       });
 
     this.monthYearSearch = search.month + '/' + search.year;
@@ -106,17 +115,17 @@ export class HoursReportEditComponent implements OnInit {
     if (!this.searchMode) {
       const empNumber = this.route.snapshot.paramMap.get('empId');
 
-      this.hRService.getHRsForEmployee(empNumber).subscribe((res: any) => {
-        this.hrs = res;
-        this.hrs.forEach((hr) => {
-          this.addReportItem(hr);
-        });
-        this.subscribeTimeChanges();
-      });
-
       this.empService.getEmployeeById(empNumber).subscribe((emp: Employee) => {
         this.currentEmployee = emp;
         this.empService.currentEmployeeHRs.next(emp);
+
+        this.hRService.getHRsForEmployee(empNumber).subscribe((res: any) => {
+          this.hrs = res;
+          this.hrs.forEach((hr) => {
+            this.addReportItem(hr);
+          });
+          this.subscribeTimeChanges();
+        });
       });
     }
 
@@ -138,11 +147,12 @@ export class HoursReportEditComponent implements OnInit {
       let interval = setInterval(() => {
         if (
           this.hRsTypes &&
-          this.hRsList?.controls?.length > 0 &&
-          this.currentEmployee
+          this.hrs?.length > 0 &&
+          this.hrs.length === this.hRsList?.controls?.length &&
+          this.currentEmployee?.employeeNumber
         ) {
-          clearInterval(interval);
           this.printService.onDataReady();
+          clearInterval(interval);
         }
       });
     }
@@ -155,25 +165,40 @@ export class HoursReportEditComponent implements OnInit {
   }
 
   onCtrlValueChanges(ctrlChanged) {
-    ctrlChanged.valueChanges.subscribe((value) => {
-      if (!value.timeStart && !value.timeEnd) return;
-
-      this.updateTotalHours(ctrlChanged, value);
-      this.updateSameDatesCtrls(ctrlChanged.value.date);
-    });
+    ctrlChanged.valueChanges
+      .pipe(startWith(null), pairwise())
+      .subscribe(([prev, next]) => {
+        if (!next.timeStart && !next.timeEnd) return;
+        this.updateTotalHours(next);
+        this.updateSameDatesCtrls(next.date, prev?.date, ctrlChanged);
+      });
   }
 
-  updateSameDatesCtrls(date) {
-    this.hRsList.controls.forEach((ctrl) => {
-      if (this._date(date) !== this._date(ctrl.value.date)) return;
+  updateSameDatesCtrls(date, prevDate?, newCtrl?) {
+    let sameDates = this.hRsList.controls.filter(
+      (ctrl) => this._date(date) === this._date(ctrl.value.date)
+    );
+    if (prevDate && this._date(prevDate) !== this._date(date)) {
+      sameDates.push(
+        ...this.hRsList.controls.filter(
+          (ctrl) => this._date(prevDate) === this._date(ctrl.value.date)
+        )
+      );
+    }
+    // if (newCtrl) {
+    //   sameDates = [...sameDates, newCtrl];
+    // }
+    sameDates.forEach((ctrl) => {
       this.updateUsualHours(ctrl, ctrl.value);
       this.updateExtraHours(ctrl, ctrl.value);
     });
   }
 
-  updateTotalHours(ctrl, value) {
+  updateTotalHours(value) {
     const totalHours = this.getTotalHours(value);
-    const index = this.hRsList.controls.indexOf(ctrl);
+    const index = this.hRsList.controls.findIndex(
+      (_ctrl) => _ctrl.value.id === value.id
+    );
     let totalHoursCtrl = this.hRsList.controls[index].get('totalHours');
     if (totalHoursCtrl.value !== totalHours) {
       totalHoursCtrl.setValue(totalHours);
@@ -182,7 +207,9 @@ export class HoursReportEditComponent implements OnInit {
 
   updateUsualHours(ctrl, value) {
     const usualHours = this.getUsualHours(value);
-    const index = this.hRsList.controls.indexOf(ctrl);
+    const index = this.hRsList.controls.findIndex(
+      (_ctrl) => _ctrl.value.id === value.id
+    );
     let usualHoursCtrl = this.hRsList.controls[index].get('usualHours');
     if (usualHoursCtrl.value !== usualHours) {
       usualHoursCtrl.setValue(usualHours);
@@ -206,6 +233,7 @@ export class HoursReportEditComponent implements OnInit {
 
   getDefaultItem(): FormGroup {
     return this.fb.group({
+      id: [null],
       date: [{ value: null, disabled: this.isReadonly }, Validators.required],
       timeStart: [
         { value: null, disabled: this.isReadonly },
@@ -230,6 +258,7 @@ export class HoursReportEditComponent implements OnInit {
     const totalHours = this.getTotalHours(hr);
 
     return this.fb.group({
+      id: [hr.Id],
       date: [
         { value: hr.date, disabled: this.isReadonly },
         Validators.required,
@@ -302,13 +331,18 @@ export class HoursReportEditComponent implements OnInit {
   }
 
   getUsualHours(item, hrTotalsHours?) {
+    const isFromOriginalHRs = !!hrTotalsHours;
     if (!item) return;
     let totalHours = item.totalHours || hrTotalsHours;
-    let sameDates = this.getSameDates(item.date, hrTotalsHours ? true : false);
+    let sameDates = this.getSameDates(item.date, isFromOriginalHRs);
     if (sameDates.length > 1) {
       totalHours = moment.duration('00:00');
-      sameDates.forEach((item) => {
-        totalHours.add(this.getTotalHours(item));
+      sameDates.forEach((_item) => {
+        totalHours.add(
+          this.getTotalHours(
+            isFromOriginalHRs ? _item : this.getCtrlUpdated(_item)
+          )
+        );
       });
       totalHours = this.getTimeFromDuration(totalHours);
     }
@@ -324,8 +358,15 @@ export class HoursReportEditComponent implements OnInit {
   }
 
   getSameDates(date, isFromOriginal?) {
-    const list = isFromOriginal ? this.hrs : this.hRsList.value;
-    return list.filter((item) => this._date(item.date) === this._date(date));
+    if (isFromOriginal) {
+      return this.hrs.filter(
+        (item) => this._date(item.date) === this._date(date)
+      );
+    }
+    const list = isFromOriginal ? this.hrs : this.hRsList.controls;
+    return this.hRsList.controls.filter(
+      (item) => this._date(item.get('date').value) === this._date(date)
+    );
   }
 
   _date(date) {
@@ -338,13 +379,17 @@ export class HoursReportEditComponent implements OnInit {
   }
 
   getExtraHours(item, hrTotalsHours?) {
+    const isFromOriginalHRs = !!hrTotalsHours;
+
     if (!item) return;
     let totalHours = item.totalHours || hrTotalsHours;
-    let sameDates = this.getSameDates(item.date, hrTotalsHours ? true : false);
+    let sameDates = this.getSameDates(item.date, isFromOriginalHRs);
     if (sameDates.length > 1) {
       totalHours = moment.duration('00:00');
-      sameDates.forEach((item) => {
-        totalHours.add(this.getTotalHours(item));
+      sameDates.forEach((_item) => {
+        totalHours.add(
+          this.getTotalHours(isFromOriginalHRs ? _item : _item.value)
+        );
       });
       totalHours = this.getTimeFromDuration(totalHours);
     }
@@ -373,8 +418,8 @@ export class HoursReportEditComponent implements OnInit {
 
   getMonthlyTotalHrs() {
     let res = moment.duration('00:00');
-    this.hRsList.controls.forEach((ctrl) => {
-      res = res.add(ctrl.value.totalHours);
+    this.hRsList.controls.forEach((ctrl: FormGroup) => {
+      res = res.add(ctrl.get('totalHours').value);
     });
     var hours = Math.floor(res.asHours());
     var mins = Math.floor(res.asMinutes()) - hours * 60;
@@ -445,14 +490,23 @@ export class HoursReportEditComponent implements OnInit {
     return Object.keys(daysObj).length;
   }
 
+  getCtrlUpdated(ctrl: FormGroup) {
+    let item = {};
+    for (const field in ctrl.controls) {
+      item[field] = ctrl.get(field).value;
+    }
+    return item;
+  }
+
   getDayesObject() {
     let daysObj = {};
-    this.hRsList.value.forEach((hr) => {
-      let _date = this._date(hr.date);
+    this.hRsList.controls.forEach((ctrl: FormGroup) => {
+      let _date = this._date(ctrl.get('date').value);
+      let item = this.getCtrlUpdated(ctrl);
       if (daysObj[_date]) {
-        daysObj[_date].push(hr);
+        daysObj[_date].push(item);
       } else {
-        daysObj[_date] = [];
+        daysObj[_date] = [item];
       }
     });
     return daysObj;
@@ -477,22 +531,23 @@ export class HoursReportEditComponent implements OnInit {
   getHrsArray(isForExcel?): HoursReport[] {
     let hRsArray = [];
 
-    const _hrList = _.cloneDeep(this.hRsList);
-    _hrList.value.forEach((row) => {
-      let item = row;
-      if (isForExcel) {
-        for (const key in row) {
-          let value = row[key];
+    const _hrList: FormArray = _.cloneDeep(this.hRsList);
+    _hrList.controls.forEach((row: FormGroup) => {
+      let item = {};
+      for (const key in row.controls) {
+        let value = row.get(key).value;
+        if (isForExcel) {
           if (key == 'date') {
             value = moment(value).format('DD/MM/YY');
           } else if (key == 'dayReportType') {
             value = this.hRsTypes.find((type) => type.Id == value).value;
           }
           item[this.hebrewTitles[key]] = value;
-          delete item[key];
+        } else {
+          item[key] = value;
         }
       }
-      hRsArray.push(row);
+      hRsArray.push(item);
     });
     return hRsArray;
   }
@@ -502,8 +557,8 @@ export class HoursReportEditComponent implements OnInit {
   }
 
   toggleEdit(enableEdit) {
-    this.hRsList.controls.forEach((ctrl) => {
-      for (const field in ctrl.value) {
+    this.hRsList.controls.forEach((ctrl: FormGroup) => {
+      for (const field in ctrl.controls) {
         enableEdit ? ctrl.get(field).enable() : ctrl.get(field).disable();
       }
     });
