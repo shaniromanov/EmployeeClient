@@ -9,30 +9,30 @@ export class HoursReportService {
   constructor(private http: HttpClient) {}
 
   addHR(hR: HoursReport) {
-    return this.http.post('https://localhost:44319/api/AddHR', hR);
+    return this.http.post('https://localhost:44370/api/AddHR', hR);
   }
 
   addHrsTypes(newReportTypeList: any[]) {
     return this.http.post(
-      'https://localhost:44319/api/AddHRsTypes',
+      'https://localhost:44370/api/AddHRsTypes',
       newReportTypeList
     );
   }
 
   getHrsTypes() {
-    return this.http.get('https://localhost:44319/api/GetHRsTypes');
+    return this.http.get('https://localhost:44370/api/GetHRsTypes');
   }
 
   updateHRsForEmployee(empNumber, hRs: HoursReport[]) {
     return this.http.post(
-      `https://localhost:44319/api/UpdateHRsForEmployee/${empNumber}`,
+      `https://localhost:44370/api/UpdateHRsForEmployee/${empNumber}`,
       hRs
     );
   }
 
   getHRsForEmployee(empNumber: string) {
     return this.http.get(
-      `https://localhost:44319/api/GetHRsForEmployee/${empNumber}`
+      `https://localhost:44370/api/GetHRsForEmployee/${empNumber}`
     );
   }
 
@@ -42,7 +42,7 @@ export class HoursReportService {
     month: string;
   }) {
     return this.http.get(
-      `https://localhost:44319/api/GetMonthlyHrsForEmployee/${search.employeeNumber}/year/${search.year}/month/${search.month}`
+      `https://localhost:44370/api/GetMonthlyHrsForEmployee/${search.employeeNumber}/year/${search.year}/month/${search.month}`
     );
   }
 }

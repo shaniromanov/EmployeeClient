@@ -63,8 +63,11 @@ export class CreateEmployeeComponent implements OnInit {
     formData.append('userImage', file, file.name);
     this.empService
       .uploadImage(formData)
-      .subscribe((url: string[]) =>
+      .subscribe((url: string) =>{
+        console.log  ("=========",url)
         this.newEmpForm.setValue({ ...this.newEmpForm.value, imageUrl: url })
+      }
+       
       );
   }
 

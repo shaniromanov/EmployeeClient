@@ -12,27 +12,28 @@ export class EmployeeService {
   constructor(private http: HttpClient) {}
 
   uploadImage(formData: FormData) {
-    return this.http.post('https://localhost:44319/api/UploadImage', formData);
+    return this.http.post('https://localhost:44370/api/UploadImage', formData,{ responseType: 'text' });
   }
 
   addEmployee(employee: Employee) {
-    return this.http.post('https://localhost:44319/api/AddEmployee', employee);
+    console.log(employee)
+    return this.http.post('https://localhost:44370/api/AddEmployee', employee);
   }
 
   updateEmployee(empNumber: string, value: any) {
     return this.http.post(
-      `https://localhost:44319/api/UpdateEmployee/${empNumber}`,
+      `https://localhost:44370/api/UpdateEmployee/${empNumber}`,
       value
     );
   }
 
   getEmployeeById(empNumber: string) {
     return this.http.get(
-      `https://localhost:44319/api/GetEmployeeById/${empNumber}`
+      `https://localhost:44370/api/GetEmployeeById/${empNumber}`
     );
   }
 
   getEmployees() {
-    return this.http.get('https://localhost:44319/api/GetEmployees');
+    return this.http.get('https://localhost:44370/api/GetEmployees');
   }
 }
