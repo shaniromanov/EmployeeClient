@@ -15,6 +15,8 @@ export class CreateEmployeeComponent implements OnInit {
   employee = new Employee();
 
   newEmpForm = this.fb.group({
+    // dateAdded:["1/1/0001 12:00:00 AM"],
+    // employeeNumber:["-1"],
     firstName: [null, Validators.required],
     lastName: [null, Validators.required],
     employeeId: [null, [Validators.required, Validators.pattern('^[0-9]{9}')]],
@@ -63,9 +65,9 @@ export class CreateEmployeeComponent implements OnInit {
     formData.append('userImage', file, file.name);
     this.empService
       .uploadImage(formData)
-      .subscribe((url: string) =>{
-        console.log  ("=========",url)
-        this.newEmpForm.setValue({ ...this.newEmpForm.value, imageUrl: url })
+      .subscribe((res) =>{
+        console.log  ("=========",res)
+        this.newEmpForm.setValue({ ...this.newEmpForm.value, imageUrl: res })
       }
        
       );

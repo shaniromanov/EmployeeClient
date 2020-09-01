@@ -226,6 +226,7 @@ export class HoursReportEditComponent implements OnInit {
   }
 
   createNewReportItem() {
+    console.log("======");
     const newCtrl = this.getDefaultItem();
     this.onCtrlValueChanges(newCtrl);
     this.hRsList.push(newCtrl);
@@ -244,7 +245,7 @@ export class HoursReportEditComponent implements OnInit {
         [Validators.required],
       ],
       dayReportType: [
-        { value: null, disabled: this.isReadonly },
+        { value: null },
         [Validators.required],
       ],
       totalHours: [{ value: null, disabled: this.isReadonly }],
@@ -255,6 +256,7 @@ export class HoursReportEditComponent implements OnInit {
   }
 
   createItemFormReport(hr: HoursReport): FormGroup {
+    console.log("createItemFormReport");
     const totalHours = this.getTotalHours(hr);
 
     return this.fb.group({
@@ -272,7 +274,7 @@ export class HoursReportEditComponent implements OnInit {
         [Validators.required],
       ],
       dayReportType: [
-        { value: hr.dayReportType || null, disabled: this.isReadonly },
+        { value: hr.dayReportType || null},
       ],
       totalHours: [{ value: totalHours, disabled: this.isReadonly }],
       usualHours: [
@@ -292,6 +294,7 @@ export class HoursReportEditComponent implements OnInit {
   }
 
   addReportItem(hr): void {
+    console.log("addReportItem");
     const itemFromReport = this.createItemFormReport(hr);
     this.hRsList.push(itemFromReport);
   }

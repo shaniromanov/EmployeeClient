@@ -26,6 +26,12 @@ export class EmployeeService {
       value
     );
   }
+  removeEmployee(empNumber: string, value: any) {
+    return this.http.post(
+      `https://localhost:44370/api/RemoveEmployee/${empNumber}`,
+      value
+    );
+  }
 
   getEmployeeById(empNumber: string) {
     return this.http.get(

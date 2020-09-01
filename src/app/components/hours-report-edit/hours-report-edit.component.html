@@ -173,16 +173,20 @@
                 appearance="fill"
                 class="tbl-field"
               >
-                <mat-select color="primary" formControlName="dayReportType">
+             
+        
+           
+                <mat-select color="primary" formControlName="dayReportType" form="newForm">
                   <mat-option color="primary" *ngIf="isManager"
                     ><div (click)="addSelction()">
                       <b> + הוסף סוג דיווח</b>
                     </div></mat-option
                   >
-                  <mat-option *ngFor="let type of hRsTypes" [value]="type.Id">{{
-                    type.value
-                  }}</mat-option>
+                  <mat-option *ngFor="let type of hRsTypes" value="type.Id">
+                    {{type.value}} 
+                  </mat-option>
                 </mat-select>
+         
                 <mat-error
                   *ngIf="item.get('dayReportType').hasError('required')"
                 >
