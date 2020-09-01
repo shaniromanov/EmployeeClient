@@ -177,14 +177,19 @@
         
            
                 <mat-select color="primary" formControlName="dayReportType" form="newForm">
-                  <mat-option color="primary" *ngIf="isManager"
-                    ><div (click)="addSelction()">
+                  <mat-option color="primary" *ngIf="isManager">
+                    <div (click)="addSelction()">
                       <b> + הוסף סוג דיווח</b>
-                    </div></mat-option
-                  >
-                  <mat-option *ngFor="let type of hRsTypes" value="type.Id">
-                    {{type.value}} 
-                  </mat-option>
+                    </div></mat-option>
+                    <mat-option disabled>
+                     מצלמה
+                    </mat-option>
+                  <div *ngFor="let type of hRsTypes">
+                    <mat-option   *ngIf="type.value!='מצלמה'" [value]="type.id.toString()">
+                      {{type.value}} 
+                    </mat-option>
+                  </div>
+                 
                 </mat-select>
          
                 <mat-error

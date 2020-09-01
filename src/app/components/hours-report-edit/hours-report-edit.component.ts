@@ -36,7 +36,7 @@ export class HoursReportEditComponent implements OnInit {
   currentEmployee: Employee = new Employee();
   isManager: boolean;
   hebrewTitles = {
-    id: 'מספר עובד',
+    Id: 'מספר עובד',
     date: 'תאריך:',
     timeStart: 'שעת התחלה:',
     timeEnd: 'שעת סיום:',
@@ -226,7 +226,6 @@ export class HoursReportEditComponent implements OnInit {
   }
 
   createNewReportItem() {
-    console.log("======");
     const newCtrl = this.getDefaultItem();
     this.onCtrlValueChanges(newCtrl);
     this.hRsList.push(newCtrl);
@@ -234,7 +233,7 @@ export class HoursReportEditComponent implements OnInit {
 
   getDefaultItem(): FormGroup {
     return this.fb.group({
-      id: [null],
+      Id: [0],
       date: [{ value: null, disabled: this.isReadonly }, Validators.required],
       timeStart: [
         { value: null, disabled: this.isReadonly },
@@ -245,22 +244,22 @@ export class HoursReportEditComponent implements OnInit {
         [Validators.required],
       ],
       dayReportType: [
-        { value: null },
+        { value: null, disabled: this.isReadonly },
         [Validators.required],
       ],
       totalHours: [{ value: null, disabled: this.isReadonly }],
       usualHours: [{ value: null, disabled: this.isReadonly }],
       extraHours: [{ value: null, disabled: this.isReadonly }],
-      comment: [{ value: null, disabled: this.isReadonly }],
+      comment: [{ value: "", disabled: this.isReadonly }],
+      employeeNumber:[{value:this.currentEmployee.employeeNumber, disabled: this.isReadonly}],
     });
   }
 
   createItemFormReport(hr: HoursReport): FormGroup {
-    console.log("createItemFormReport");
     const totalHours = this.getTotalHours(hr);
 
     return this.fb.group({
-      id: [hr.Id],
+      Id: [hr.Id],
       date: [
         { value: hr.date, disabled: this.isReadonly },
         Validators.required,
@@ -274,7 +273,7 @@ export class HoursReportEditComponent implements OnInit {
         [Validators.required],
       ],
       dayReportType: [
-        { value: hr.dayReportType || null},
+        { value: hr.dayReportType || null, disabled: this.isReadonly },
       ],
       totalHours: [{ value: totalHours, disabled: this.isReadonly }],
       usualHours: [
@@ -294,7 +293,6 @@ export class HoursReportEditComponent implements OnInit {
   }
 
   addReportItem(hr): void {
-    console.log("addReportItem");
     const itemFromReport = this.createItemFormReport(hr);
     this.hRsList.push(itemFromReport);
   }
@@ -523,6 +521,8 @@ export class HoursReportEditComponent implements OnInit {
 
   submitForm() {
     if (!this.newForm.valid) return;
+    let ar=this.getHrsArray();
+    console.log("-->>",ar)
     this.hRService
       .updateHRsForEmployee(
         this.currentEmployee.employeeNumber,
@@ -539,16 +539,22 @@ export class HoursReportEditComponent implements OnInit {
       let item = {};
       for (const key in row.controls) {
         let value = row.get(key).value;
-        if (isForExcel) {
+        // if (isForExcel) {
+          console.log(this.hRsTypes)
           if (key == 'date') {
-            value = moment(value).format('DD/MM/YY');
-          } else if (key == 'dayReportType') {
-            value = this.hRsTypes.find((type) => type.Id == value).value;
+            console.log("date")
+            value = moment(value).format('DD/MM/YYYY');
+            console.log(value)
+          } 
+       
+          else if (key == 'dayReportType'&&isForExcel){
+              console.log(this.hRsTypes)
+              value = this.hRsTypes.find((type) => type.Id == value).value;
           }
-          item[this.hebrewTitles[key]] = value;
-        } else {
+        
+        
           item[key] = value;
-        }
+      
       }
       hRsArray.push(item);
     });
