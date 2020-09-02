@@ -48,6 +48,7 @@ export class HoursReportEditComponent implements OnInit {
     usualHours: 'שעות רגילות:',
     extraHours: 'שעות נוספות:',
     comment: 'הערה:',
+
   };
 
   monthYearSearch: string;
@@ -130,7 +131,9 @@ export class HoursReportEditComponent implements OnInit {
         this.empService.currentEmployeeHRs.next(emp);
 
         this.hRService.getHRsForEmployee(empNumber).subscribe((res: any) => {
+         
           this.hrs = res;
+          console.log("hrs:   ", this.hrs);
           this.hrs.forEach((hr) => {
             this.addReportItem(hr);
         
@@ -271,9 +274,8 @@ export class HoursReportEditComponent implements OnInit {
 
   createItemFormReport(hr: HoursReport): FormGroup {
     const totalHours = this.getTotalHours(hr);
-
     return this.fb.group({
-      Id:[0],
+      Id: [0],
       date: [
         { value: hr.date, disabled: this.isReadonly },
         Validators.required,
@@ -323,10 +325,16 @@ export class HoursReportEditComponent implements OnInit {
     const fileName = `${firstName} ${lastName} נוכחות.xlsx`;
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(
       this.getHrsArray(true),
-      { header: Object.values(this.hebrewTitles).reverse() }
+      { header: Object.values(this.hebrewTitles).reverse(), skipHeader: true }
     );
+    var Heading = [
+      ["מספר עובד", "תאריך", "שעת התחלה", "שעת סיום", "סוג דיווח", "סך שעות", "שעות רגילות", "שעות נוספות", "הערות"],
+    ];
+    var ws2 = XLSX.utils.aoa_to_sheet(Heading);
+    XLSX.utils.sheet_add_json(ws2, this.getHrsArray(true), {skipHeader: true, origin: "A2"});
+
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+    XLSX.utils.book_append_sheet(wb, ws2, 'Sheet1');
 
     /* save to file */
     XLSX.writeFile(wb, fileName);
@@ -548,6 +556,7 @@ export class HoursReportEditComponent implements OnInit {
     let hRsArray = [];
 
     const _hrList: FormArray = _.cloneDeep(this.hRsList);
+    console.log("hrList: ",_hrList);
     _hrList.controls.forEach((row: FormGroup) => {
       let item = {};
       for (const key in row.controls) {

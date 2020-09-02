@@ -1,7 +1,7 @@
 import { Time } from '@angular/common';
 
 export class HoursReport {
-  public Id: number;
+  public id: number;
   public date: Date;
   public timeStart: Time;
   public timeEnd: Time;
