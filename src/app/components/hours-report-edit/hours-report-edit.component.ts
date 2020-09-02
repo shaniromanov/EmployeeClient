@@ -68,8 +68,10 @@ export class HoursReportEditComponent implements OnInit {
       .getEmployeeById(search.employeeNumber)
       .subscribe((emp: Employee) => {
         this.currentEmployee = emp;
+        console.log("2 emp: ", emp);
         if (this.hRsList.controls.length > 0) {
           this.hRsList = this.fb.array([]);
+          console.log("hrs list: ", this.hRsList);
         }
         this.hrs.forEach((hr) => {
           this.addReportItem(hr);
@@ -117,6 +119,7 @@ export class HoursReportEditComponent implements OnInit {
 
       this.empService.getEmployeeById(empNumber).subscribe((emp: Employee) => {
         this.currentEmployee = emp;
+        console.log("1 emp: ", emp);
         this.empService.currentEmployeeHRs.next(emp);
 
         this.hRService.getHRsForEmployee(empNumber).subscribe((res: any) => {

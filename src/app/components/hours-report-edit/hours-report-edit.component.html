@@ -89,13 +89,13 @@
         <div>
           <span
             ><span class="purple bold">שעות עבודה ביום:</span>
-            {{ currentEmployee?.hoursPerDay | slice: 0:5 }}
+            {{ currentEmployee?.hoursPerDay<!--  | slice: 0:5 --> }}
           </span>
         </div>
         <div>
           <span
             ><span class="purple bold">מקסימום שעות נוספות ליום:</span>
-            {{ currentEmployee?.maximumExtraHours | slice: 0:5 }}
+            {{ currentEmployee?.maximumExtraHours <!-- | slice: 0:5  -->}}
           </span>
         </div>
       </div>

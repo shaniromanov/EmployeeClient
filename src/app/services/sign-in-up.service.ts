@@ -47,4 +47,10 @@ export class SignInUpService {
       employeeCardentials
     );
   }
+
+  loginManager( userName: string, password: string ) {
+   if(userName == "admin" && password == "1234")
+     return true;
+   else return false;
+  }
 }

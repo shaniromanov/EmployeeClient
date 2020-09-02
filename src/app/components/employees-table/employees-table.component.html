@@ -52,11 +52,13 @@
             <mat-icon color="primary">edit</mat-icon>
             עריכת דו"ח נוכחות
           </button>
+          <button (click)="deleteeEmployee(row.employeeNumber)"  mat-menu-item>  
+            <mat-icon color="primary">delete</mat-icon>
+            מחיקה
+          </button>
         </mat-menu>
     
-        <button (click)="deleteeEmployee(row.employeeNumber)"  mat-menu-item>  <mat-icon color="primary">delete</mat-icon>
-          מחיקה
-        </button>
+       
     
       </td>
     </ng-container>
