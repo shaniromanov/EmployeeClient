@@ -273,7 +273,7 @@ export class HoursReportEditComponent implements OnInit {
         [Validators.required],
       ],
       dayReportType: [
-        { value: hr.dayReportType || null, disabled: this.isReadonly },
+        { value: hr.dayReportType.toString() || null, disabled: this.isReadonly },
       ],
       totalHours: [{ value: totalHours, disabled: this.isReadonly }],
       usualHours: [

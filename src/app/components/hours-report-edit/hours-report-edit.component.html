@@ -115,8 +115,8 @@
         <div
           id="tbl_content"
           formArrayName="hRsList"
-          *ngFor="let item of hRsList?.controls; let i = index"
-        >
+          *ngFor="let item of hRsList?.controls; let i = index">
+
           <div [formGroupName]="i">
             <button
               *ngIf="!isReadonly && !searchMode"
@@ -176,7 +176,7 @@
              
         
            
-                <mat-select color="primary" formControlName="dayReportType" form="newForm">
+                <mat-select color="primary" formControlName="dayReportType" form="newForm" >
                   <mat-option color="primary" *ngIf="isManager">
                     <div (click)="addSelction()">
                       <b> + הוסף סוג דיווח</b>
