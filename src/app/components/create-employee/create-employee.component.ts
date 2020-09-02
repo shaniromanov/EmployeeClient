@@ -15,8 +15,7 @@ export class CreateEmployeeComponent implements OnInit {
   employee = new Employee();
 
   newEmpForm = this.fb.group({
-    // dateAdded:["1/1/0001 12:00:00 AM"],
-    // employeeNumber:["-1"],
+ 
     firstName: [null, Validators.required],
     lastName: [null, Validators.required],
     employeeId: [null, [Validators.required, Validators.pattern('^[0-9]{9}')]],
@@ -46,14 +45,32 @@ export class CreateEmployeeComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+   
+      this.newEmpForm.patchValue({
+
+        hoursPerDay: new Date().getHours() + ':' + new Date().getMinutes(),
+        maximumExtraHours: new Date().getHours() + ':' + new Date().getMinutes()
+      });
+
     const empNumber = this.route.snapshot.paramMap.get('empId');
     if (empNumber) {
       this.empService.getEmployeeById(empNumber).subscribe((emp) => {
         const empMappedToForm = {};
         for (const key in this.newEmpForm.value) {
-          empMappedToForm[key] = emp[key] ? emp[key] : null;
+       
+            empMappedToForm[key] = emp[key] ? emp[key] : null;
+  
+          
         }
+         const hrsDay=emp["hoursPerDay"].hours.toString()+":00"
+          empMappedToForm["hoursPerDay"]= hrsDay
+          const maxHours=emp["maximumExtraHours"].hours.toString()+":00"
+          empMappedToForm["maximumExtraHours"]= maxHours
+    
+        console.log("******8",empMappedToForm)
         this.newEmpForm.setValue(empMappedToForm);
+        console.log(this.newEmpForm.value)
+  
       });
     }
   }

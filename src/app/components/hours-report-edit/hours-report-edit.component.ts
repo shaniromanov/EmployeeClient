@@ -133,6 +133,7 @@ export class HoursReportEditComponent implements OnInit {
           this.hrs = res;
           this.hrs.forEach((hr) => {
             this.addReportItem(hr);
+        
           });
           this.subscribeTimeChanges();
         });
@@ -144,10 +145,7 @@ export class HoursReportEditComponent implements OnInit {
       .subscribe(
         (hRsTypes: { id: number; value: string }[]) =>{
           (this.hRsTypes = hRsTypes)
-          console.log(this.hRsTypes)
-          console.log(this.hRsTypes.find((type) => type.value == "מצלמה"))
           this.valueOfCamera=this.hRsTypes.find((type) => type.value == "מצלמה").id.toString();
-          console.log(this.valueOfCamera)
         }
          
       );
@@ -275,7 +273,7 @@ export class HoursReportEditComponent implements OnInit {
     const totalHours = this.getTotalHours(hr);
 
     return this.fb.group({
-      Id: [0],
+      Id:[0],
       date: [
         { value: hr.date, disabled: this.isReadonly },
         Validators.required,
@@ -309,6 +307,7 @@ export class HoursReportEditComponent implements OnInit {
   }
 
   addReportItem(hr): void {
+    console.log("id1??",hr)
     const itemFromReport = this.createItemFormReport(hr);
     this.hRsList.push(itemFromReport);
   }
@@ -469,14 +468,10 @@ export class HoursReportEditComponent implements OnInit {
     if (!this.currentEmployee?.hoursPerDay) return;
     const endDayOfMonth = +this.getMonthlyWorkDaysOfCurrentSearchMonth();
     const HoursPerDay = +this.currentEmployee.hoursPerDay.hours
-    //   .toString()
-    //   .split(':')[0];
-    // const minsPerDay = +this.currentEmployee.hoursPerDay
-    //   .toString()
-    //   .split(':')[1];
+
     const monthlyUsualHours =
       endDayOfMonth * HoursPerDay ;
-      console.log("nan??", monthlyUsualHours)
+ 
     return monthlyUsualHours;
   }
 
@@ -500,7 +495,6 @@ export class HoursReportEditComponent implements OnInit {
     let daysObj = {};
     this.hrs.forEach((hr) => {
       let _date = this._date(hr.date);
-      console.log("date---",  _date)
       if (daysObj[_date]) {
       } else {
         daysObj[_date] = true;
