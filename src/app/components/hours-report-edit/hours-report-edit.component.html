@@ -181,7 +181,7 @@
                     <div (click)="addSelction()">
                       <b> + הוסף סוג דיווח</b>
                     </div></mat-option>
-                    <mat-option disabled>
+                    <mat-option disabled [value]="valueOfCamera">
                      מצלמה
                     </mat-option>
                   <div *ngFor="let type of hRsTypes">

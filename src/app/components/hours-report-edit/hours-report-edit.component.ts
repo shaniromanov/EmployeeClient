@@ -27,12 +27,13 @@ export class HoursReportEditComponent implements OnInit {
   newHr = new HoursReport();
   minDate: Date;
   maxDate: Date;
+  valueOfCamera:string;
 
   newForm: FormGroup = this.fb.group({
     hRsList: this.fb.array([]),
   });
 
-  hRsTypes: { Id: number; value: string }[];
+  hRsTypes: { id: number; value: string }[];
   currentEmployee: Employee = new Employee();
   isManager: boolean;
   hebrewTitles = {
@@ -132,8 +133,14 @@ export class HoursReportEditComponent implements OnInit {
     this.hRService
       .getHrsTypes()
       .subscribe(
-        (hRsTypes: { Id: number; value: string }[]) =>
+        (hRsTypes: { id: number; value: string }[]) =>{
           (this.hRsTypes = hRsTypes)
+          console.log(this.hRsTypes)
+          console.log(this.hRsTypes.find((type) => type.value == "מצלמה"))
+          this.valueOfCamera=this.hRsTypes.find((type) => type.value == "מצלמה").id.toString();
+          console.log(this.valueOfCamera)
+        }
+         
       );
 
     this.isManager = this.signInUpService.isManagerLoggedIn();
@@ -259,7 +266,7 @@ export class HoursReportEditComponent implements OnInit {
     const totalHours = this.getTotalHours(hr);
 
     return this.fb.group({
-      Id: [hr.Id],
+      Id: [0],
       date: [
         { value: hr.date, disabled: this.isReadonly },
         Validators.required,
@@ -288,7 +295,7 @@ export class HoursReportEditComponent implements OnInit {
           disabled: this.isReadonly,
         },
       ],
-      comment: [{ value: hr.comment || null, disabled: this.isReadonly }],
+      comment: [{ value: hr.comment || "", disabled: this.isReadonly }],
     });
   }
 
@@ -540,7 +547,7 @@ export class HoursReportEditComponent implements OnInit {
       for (const key in row.controls) {
         let value = row.get(key).value;
         // if (isForExcel) {
-          console.log(this.hRsTypes)
+   
           if (key == 'date') {
             console.log("date")
             value = moment(value).format('DD/MM/YYYY');
@@ -548,8 +555,8 @@ export class HoursReportEditComponent implements OnInit {
           } 
        
           else if (key == 'dayReportType'&&isForExcel){
-              console.log(this.hRsTypes)
-              value = this.hRsTypes.find((type) => type.Id == value).value;
+ 
+              value = this.hRsTypes.find((type) => type.id == value).value;
           }
         
         
@@ -558,6 +565,7 @@ export class HoursReportEditComponent implements OnInit {
       }
       hRsArray.push(item);
     });
+    console.log(hRsArray)
     return hRsArray;
   }
 
