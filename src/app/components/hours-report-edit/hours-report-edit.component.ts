@@ -28,6 +28,8 @@ export class HoursReportEditComponent implements OnInit {
   minDate: Date;
   maxDate: Date;
   valueOfCamera:string;
+  hoursPerDay:string;
+  maximumExtraHours:string;
 
   newForm: FormGroup = this.fb.group({
     hRsList: this.fb.array([]),
@@ -70,6 +72,10 @@ export class HoursReportEditComponent implements OnInit {
       .subscribe((emp: Employee) => {
         this.currentEmployee = emp;
         console.log("2 emp: ", emp);
+        this.hoursPerDay=emp.hoursPerDay.hours.toString();
+        this.maximumExtraHours=emp.maximumExtraHours.hours.toString();
+ 
+        console.log("hoursPerDay", this.hoursPerDay)
         if (this.hRsList.controls.length > 0) {
           this.hRsList = this.fb.array([]);
           console.log("hrs list: ", this.hRsList);
