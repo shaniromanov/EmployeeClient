@@ -78,7 +78,7 @@ export class HoursReportEditComponent implements OnInit {
         console.log("hoursPerDay", this.hoursPerDay)
         if (this.hRsList.controls.length > 0) {
           this.hRsList = this.fb.array([]);
-          console.log("hrs list: ", this.hRsList);
+          console.log("hrs list: ", this.hrs);
         }
         this.hrs.forEach((hr) => {
           this.addReportItem(hr);
@@ -468,14 +468,15 @@ export class HoursReportEditComponent implements OnInit {
   getRequiredMonthlyHours() {
     if (!this.currentEmployee?.hoursPerDay) return;
     const endDayOfMonth = +this.getMonthlyWorkDaysOfCurrentSearchMonth();
-    const HoursPerDay = +this.currentEmployee.hoursPerDay
-      .toString()
-      .split(':')[0];
-    const minsPerDay = +this.currentEmployee.hoursPerDay
-      .toString()
-      .split(':')[1];
+    const HoursPerDay = +this.currentEmployee.hoursPerDay.hours
+    //   .toString()
+    //   .split(':')[0];
+    // const minsPerDay = +this.currentEmployee.hoursPerDay
+    //   .toString()
+    //   .split(':')[1];
     const monthlyUsualHours =
-      endDayOfMonth * HoursPerDay + endDayOfMonth * (minsPerDay / 60);
+      endDayOfMonth * HoursPerDay ;
+      console.log("nan??", monthlyUsualHours)
     return monthlyUsualHours;
   }
 
@@ -497,13 +498,15 @@ export class HoursReportEditComponent implements OnInit {
 
   getMonthlyWorkedDays() {
     let daysObj = {};
-    this.hRsList.value.forEach((hr) => {
+    this.hrs.forEach((hr) => {
       let _date = this._date(hr.date);
+      console.log("date---",  _date)
       if (daysObj[_date]) {
       } else {
         daysObj[_date] = true;
       }
     });
+ 
     return Object.keys(daysObj).length;
   }
 
