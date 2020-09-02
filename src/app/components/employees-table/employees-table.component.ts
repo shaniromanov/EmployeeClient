@@ -39,6 +39,7 @@ export class EmployeesTableComponent implements AfterViewInit, OnInit {
     this.table.dataSource = this.dataSource;
      this.empService.getEmployees().subscribe((emps: Employee[]) => {
       this.dataSource.addData(emps);
+      console.log("added! the data source is: ", this.dataSource);
       });
   }
  
@@ -64,20 +65,21 @@ export class EmployeesTableComponent implements AfterViewInit, OnInit {
         .removeEmployee(empNumber, {
         })
         .subscribe(
-          (emp) => this.openDialog(true, true),
+          (emp) => {this.openDialog(true, true);
+            this.dataSource.removeData(emp);
+              console.log("removed! the data source is: ", this.dataSource);
+this.table.dataSource = this.dataSource;
+this.dataSource.data = this.dataSource.data;
+this.paginator._changePageSize(this.paginator.pageSize); 
+          },
           (err) => {
             this.openDialog(false, true);
           }
         );
-        console.log("@@!22@@")
-        console.log("@@!22@@")
 
 
         this.empService.getEmployees().subscribe((emps: Employee[]) => {
-          console.log((emps));
-          // this.dataSource.addData(emps);
-
-          
+          console.log((emps));          
           });
     }
   }

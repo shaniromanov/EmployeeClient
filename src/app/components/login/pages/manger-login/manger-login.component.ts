@@ -20,7 +20,15 @@ export class MangerLoginComponent implements OnInit {
 
   login(form: NgForm) {
     if (!form.valid) return;
-    this.signInUpService.setManagerLogin(true);
-    this.router.navigateByUrl('emp-list');
+
+    var res = this.signInUpService.loginManager( this.username, this.password )
+    if  (res) {
+      this.signInUpService.setManagerLogin(true);
+      this.router.navigateByUrl('emp-list');
+      }
+    else {
+        alert('הכניסה נכשלה - נא לוודא נתוני כניסה');
+      }
+  
   }
 }

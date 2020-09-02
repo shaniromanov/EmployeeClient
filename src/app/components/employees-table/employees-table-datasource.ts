@@ -64,6 +64,11 @@ export class EmployeesTableDataSource extends DataSource<Employee> {
     this.data = copiedData;
   }
 
+  removeData(emp/* : Employee */) {
+    var index = this.data.indexOf(emp);
+    this.data.splice(index, 1);
+  }
+
   /**
    *  Called when the table is being destroyed. Use this function, to clean up
    * any open connections or free any held resources that were set up during connect.
